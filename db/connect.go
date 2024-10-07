@@ -10,7 +10,7 @@ import (
 
 const dbConfigFile = "db_config.toml"
 
-func ConnectDB() *dbman.DBMan {
+func ConnectDB(connectionName string) *dbman.DBMan {
 	// conexion a la db
 	db := dbman.New()
 	dbConfigPath := utils.GetAppRootPath() + "config/"
@@ -24,7 +24,7 @@ func ConnectDB() *dbman.DBMan {
 		return nil
 	}
 
-	db.SetPrimary("local")
+	db.SetPrimary(connectionName)
 
 	db.Primary.AutoMigrate()
 

@@ -1,13 +1,16 @@
 package handlers
 
 import (
-	"milonga/db"
+	"net/http"
 
-	"github.com/gofiber/fiber/v2"
+	"github.com/labstack/echo/v4"
 )
 
-func Index(c *fiber.Ctx) error {
+func Index(c echo.Context) error {
 
-	db.ConnectDB()
-	return c.SendString("Hello, World!")
+	return c.String(http.StatusOK, "Hello, World!")
+}
+
+func HtmlxExample(c echo.Context) error {
+	return c.HTML(http.StatusOK, "<p>Hi from htmlx</p>")
 }

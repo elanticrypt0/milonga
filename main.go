@@ -4,25 +4,29 @@ import (
 	"milonga/app"
 	"milonga/handlers"
 
-	"github.com/gofiber/fiber/v2"
+	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v4/middleware"
 )
 
 func main() {
 
 	// read env config
-
 	config := app.LoadConfig("./config/app_config.toml")
 
-	// inicia servicio
-	app := fiber.New(fiber.Config{
-		Prefork:       true,
-		CaseSensitive: true,
-		StrictRouting: true,
-		ServerHeader:  "Fiber",
-		AppName:       config.Name + " v" + config.Version,
-	})
+	e := echo.New()
+	e.Use(middleware.CORSWithConfig(middleware.CORSConfig{
+		AllowOrigins: []string{"http://localhost:" + config.Port, "http://localhost:4321", "http://localhost:3000"},
+		AllowHeaders: []string{echo.HeaderOrigin, echo.HeaderContentType, echo.HeaderAccept},
+	}))
+	e.Use(middleware.Logger())
+	e.Use(middleware.Recover())
 
-	app.Get("/", handlers.Index)
+	/* Handlers */
+	e.Static("/public", "./public")
 
-	app.Listen(":" + config.Port)
+	e.GET("/", handlers.Index)
+
+	e.GET("/example-htmlx", handlers.HtmlxExample)
+
+	e.Logger.Fatal(e.Start(":" + config.Port))
 }
