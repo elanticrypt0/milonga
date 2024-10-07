@@ -1,0 +1,3 @@
+#!/bin/bash
+go list -m all
+go get -u ./...

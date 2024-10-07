@@ -1,0 +1,9 @@
+# engines (sqlite / mysql / postgres)
+[[database]]
+    connName="local"
+    engine="sqlite"
+    host=""
+    port=0
+    user=""
+    password=""
+    dbname="../../_db/my_db.db"
