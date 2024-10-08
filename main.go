@@ -26,7 +26,9 @@ func main() {
 
 	e.GET("/", handlers.Index)
 
+	// HTMLX examples
 	e.GET("/example-htmlx", handlers.HtmlxExample)
+	e.POST("/example-sayhi", handlers.SayHiExample)
 
 	e.Logger.Fatal(e.Start(":" + config.Port))
 }

@@ -14,3 +14,8 @@ func Index(c echo.Context) error {
 func HtmlxExample(c echo.Context) error {
 	return c.HTML(http.StatusOK, "<p>Hi from htmlx</p>")
 }
+
+func SayHiExample(c echo.Context) error {
+	name := c.FormValue("name")
+	return c.String(http.StatusOK, "Hi, "+name)
+}

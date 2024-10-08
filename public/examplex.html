@@ -28,15 +28,22 @@
         </header>
         <main>
             <h1>Htmlx example</h1>
-            <div id="parent-div">
+            <div id="parent">
                 <button hx-get="/example-htmlx"
                     hx-trigger="click"
-                    hx-target="#parent-div"
+                    hx-target="#parent"
                     hx-swap="outerHTML"
                 >
                     Click Me!
                 </button>
                 I will change
+            </div>
+            <h2>Form example</h2>
+            <div id="form-example">
+                <form id="exampleForm" hx-post="/example-sayhi" hx-trigger="submit">
+                    <input type="text" placeholder="Write your name here" name="name" />
+                    <input type="submit"  value="Submit" />
+                </form>
             </div>
             
 
