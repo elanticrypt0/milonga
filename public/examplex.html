@@ -20,17 +20,11 @@
               <a href="https://htmx.org/docs/#installing" target="_blank" class="btn btn-link">Htmlx docs</a>
               <a href="https://hayageek.com/htmx-ajax-post-json-fileupload-example/" target="_blank"class="btn btn-link">Htmlx send data</a>
             </section>
-            <section class="navbar-section">
-              <div class="input-group input-inline">
-                <input class="form-input" type="text" placeholder="search">
-                <button class="btn btn-primary input-group-btn">Search</button>
-              </div>
-            </section>
         </header>
         <main>
             <h1>Htmlx example</h1>
             <div id="parent">
-                <button hx-get="/example-htmlx"
+                <button hx-get="/api/example-htmlx"
                     hx-trigger="click"
                     hx-target="#parent"
                     hx-swap="outerHTML"
@@ -41,7 +35,7 @@
             </div>
             <h2>Form example</h2>
             <div id="form-example">
-                <form id="exampleForm" hx-post="/example-sayhi" hx-trigger="submit">
+                <form id="exampleForm" hx-post="/api/example-sayhi" hx-trigger="submit">
                     <input type="text" placeholder="Write your name here" name="name" />
                     <input type="submit"  value="Submit" />
                 </form>

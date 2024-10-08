@@ -3,6 +3,7 @@ package main
 import (
 	"milonga/handlers"
 	"milonga/pkg/app"
+	"milonga/pkg/utils"
 
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
@@ -11,24 +12,23 @@ import (
 func main() {
 
 	// read env config
-	config := app.LoadConfig("./config/app_config.toml")
+	// config := app.LoadConfig("./config/app_config.toml")
 
-	e := echo.New()
-	e.Use(middleware.CORSWithConfig(middleware.CORSConfig{
-		AllowOrigins: []string{"http://localhost:" + config.Port, "http://localhost:4321", "http://localhost:3000"},
+	app := &app.App{
+		Server: echo.New(),
+		Config: app.LoadConfig("./config/app_config.toml"),
+	}
+
+	app.Server.Use(middleware.CORSWithConfig(middleware.CORSConfig{
+		AllowOrigins: []string{"http://localhost:" + app.Config.Port, "http://localhost:4321", "http://localhost:3000"},
 		AllowHeaders: []string{echo.HeaderOrigin, echo.HeaderContentType, echo.HeaderAccept},
 	}))
-	e.Use(middleware.Logger())
-	e.Use(middleware.Recover())
+	app.Server.Use(middleware.Logger())
+	app.Server.Use(middleware.Recover())
 
-	/* Handlers */
-	e.Static("/public", "./public")
+	handlers.Setup(app)
 
-	e.GET("/", handlers.Index)
+	utils.OpenInBrowser("http://localhost:" + app.Config.Port)
 
-	// HTMLX examples
-	e.GET("/example-htmlx", handlers.HtmlxExample)
-	e.POST("/example-sayhi", handlers.SayHiExample)
-
-	e.Logger.Fatal(e.Start(":" + config.Port))
+	app.Server.Logger.Fatal(app.Server.Start(":" + app.Config.Port))
 }
