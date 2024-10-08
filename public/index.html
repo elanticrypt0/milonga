@@ -3,28 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="/public/style/spectre.min.css" type="text/css">
-    <link rel="stylesheet" href="/public/style/spectre-icons.min.css" type="text/css">
+    <link rel="stylesheet" href="style/spectre.min.css" type="text/css">
+    <link rel="stylesheet" href="style/spectre-icons.min.css" type="text/css">
     <title>Index</title>
 </head>
 <body>
     <div class="container">
-        <header class="navbar">
-            <section class="navbar-section">
-              <a href="/" class="navbar-brand mr-2">Index</a>
-              <a href="/public" class="btn btn-link">Public</a>
-              <a href="/public/examplex.html" class="btn btn-link">Html example</a>
-              <span>|Docs|</span>
-              <a href="https://echo.labstack.com/docs/quick-start" target="_blank" class="btn btn-link">Echo docs</a>
-              <a href="https://picturepan2.github.io/spectre/getting-started/installation.html" target="_blank" class="btn btn-link">Spectre css docs</a>
-              <a href="https://htmx.org/docs/#installing" target="_blank" class="btn btn-link">Htmlx docs</a>
-              <a href="https://hayageek.com/htmx-ajax-post-json-fileupload-example/" target="_blank"class="btn btn-link">Htmlx send data</a>
-            </section>
-        </header>
+        <div hx-get="/components/Navbar.html" hx-trigger="load"></div>
         <main>
             <h1>Working</h1>
         </main>
     </div>
 
+    <script src="https://unpkg.com/htmx.org@2.0.3" integrity="sha384-0895/pl2MU10Hqc6jd4RvrthNlDiE9U1tWmX7WRESftEDRosgxNsQG/Ze9YMRzHq" crossorigin="anonymous"></script>
 </body>
 </html>

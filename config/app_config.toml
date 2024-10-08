@@ -1,3 +1,4 @@
 APP_NAME="Milonga"
 APP_VERSION="0.0.1"
 APP_PORT="9000"
+APP_URL="http://localhost"

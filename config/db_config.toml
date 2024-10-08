@@ -3,7 +3,7 @@
     connName="local"
     engine="sqlite"
     host=""
-    port=0
+    port=""
     user=""
     password=""
     dbname="my_local_db.db"

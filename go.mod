@@ -4,7 +4,7 @@ go 1.23.2
 
 require (
 	github.com/BurntSushi/toml v1.4.0
-	github.com/elanticrypt0/dbman v0.1.31
+	github.com/elanticrypt0/dbman v0.1.32
 	github.com/labstack/echo/v4 v4.12.0
 	gorm.io/gorm v1.25.12
 )

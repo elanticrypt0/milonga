@@ -9,6 +9,8 @@ github.com/dustin/go-humanize v1.0.1 h1:GzkhY7T5VNhEkwH0PVJgjz+fX1rhBrR7pRT3mDkp
 github.com/dustin/go-humanize v1.0.1/go.mod h1:Mu1zIs6XwVuF/gI1OepvI0qD18qycQx+mFykh5fBlto=
 github.com/elanticrypt0/dbman v0.1.31 h1:uVg/srDezvoI0PY9ioj/7soQvrJsCBtB2BPqFnMRoUo=
 github.com/elanticrypt0/dbman v0.1.31/go.mod h1:BaV+dM+tbG0hZz6yHje2beofShVsKJU4aP6WbiKWrDY=
+github.com/elanticrypt0/dbman v0.1.32 h1:aFl7i/3WQGqYjw6lBYuOthQ8xecoCmUEhqh2YLJaS2s=
+github.com/elanticrypt0/dbman v0.1.32/go.mod h1:BaV+dM+tbG0hZz6yHje2beofShVsKJU4aP6WbiKWrDY=
 github.com/glebarez/go-sqlite v1.22.0 h1:uAcMJhaA6r3LHMTFgP0SifzgXg46yJkgxqyuyec+ruQ=
 github.com/glebarez/go-sqlite v1.22.0/go.mod h1:PlBIdHe0+aUEFn+r2/uthrWq4FxbzugL0L8Li6yQJbc=
 github.com/glebarez/sqlite v1.11.0 h1:wSG0irqzP6VurnMEpFGer5Li19RpIRi2qvQz++w0GMw=
