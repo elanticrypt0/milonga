@@ -1,0 +1,43 @@
+--- 
+interface Props {
+	title: string;
+}
+
+const { title } = Astro.props;
+import { ViewTransitions } from 'astro:transitions';
+import Navbar from '@/components/shared/Navbar.astro';
+
+import {SiteConfig} from '@/constants/site-config';
+---
+
+<!DOCTYPE html>
+<html lang="es">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="description" content="Astro description">
+		<meta name="viewport" content="width=device-width" />
+		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+		<meta name="generator" content={Astro.generator} />
+		<title>{SiteConfig.title} - {title}</title>
+		<ViewTransitions></ViewTransitions>
+	</head>
+	<body>
+		<Navbar></Navbar>
+		<main class="flex-auto mx-20 mt-5 bg-white rounded-sm px-20 pt-10 pb-10" transition:animate="fade">
+			<slot />
+		</main>
+	</body>
+</html>
+<style is:global>
+	:root {
+		--accent: 224, 204, 250;
+		--accent-gradient: linear-gradient(45deg, rgb(var(--accent)), rgb(var(--accent-light)) 30%, white 60%);
+	}
+	html {
+		font-family: system-ui, sans-serif;
+		background: #f5f5f5;
+		background-size: 224px;
+		color:black;
+	}
+	
+</style>

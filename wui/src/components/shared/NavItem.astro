@@ -1,0 +1,31 @@
+---
+
+interface Props{
+    link:string;
+    text:string;
+    isActive:boolean;
+}
+
+const {link,text,isActive=false} = Astro.props;
+
+const currentPath = Astro.url.pathname;
+---
+
+<li>
+    <div>
+    <a href={link}
+        class="capitalize block py-2 pl-3 pr-4 text-gray-900 rounded hover:bg-gray-100 md:hover:bg-transparent hover:text-blue-700 md:p-0"
+    >
+    {text}
+    </a>
+    {
+        currentPath==link ? (
+        <div
+            transition:name="menu-line"
+            class="border-b-2 border-blue-500"></div>
+        ):(
+            <div class="border-b-2 border-transparent"></div>
+        )
+    }
+    </div>
+  </li>
