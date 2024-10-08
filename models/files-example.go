@@ -4,6 +4,8 @@ import (
 	"gorm.io/gorm"
 )
 
+// Example model
+
 type File struct {
 	ID uint `json:"id" param:"id" query:"id" form:"id"`
 	gorm.Model

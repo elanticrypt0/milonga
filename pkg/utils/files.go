@@ -1,7 +1,7 @@
 package utils
 
 import (
-	"milonga/errors"
+	"milonga/pkg/errors"
 	"os"
 
 	"github.com/BurntSushi/toml"

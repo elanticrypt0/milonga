@@ -6,4 +6,4 @@
     port=0
     user=""
     password=""
-    dbname="../../_db/my_db.db"
+    dbname="../../.db/my_local_db.db"

@@ -3,7 +3,7 @@ package db
 import (
 	"fmt"
 	"log"
-	"milonga/utils"
+	"milonga/pkg/utils"
 
 	"github.com/elanticrypt0/dbman"
 )

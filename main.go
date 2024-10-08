@@ -1,8 +1,8 @@
 package main
 
 import (
-	"milonga/app"
 	"milonga/handlers"
+	"milonga/pkg/app"
 
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"

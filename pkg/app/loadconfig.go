@@ -1,8 +1,8 @@
 package app
 
 import (
-	"milonga/errors"
-	"milonga/utils"
+	"milonga/pkg/errors"
+	"milonga/pkg/utils"
 
 	"github.com/BurntSushi/toml"
 )
