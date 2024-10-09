@@ -1,0 +1,25 @@
+---
+import Layout from "@/layouts/Layout.astro";
+import {API} from '@/constants/api'
+
+---
+<Layout title="HTMLX">
+    <h1>HTMLX examples</h1>
+    <button
+        hx-get={`${API.URL}example-htmlx`}
+        hx-trigger="click"
+        hx-target="#resultado"
+    >Say hi</button>
+    <div id="resultado">
+        I will change
+    </div>
+
+    <hr>
+    <h2>Form example</h2>
+    <div id="form-example">
+        <form id="exampleForm" hx-post={`${API.URL}example-sayhi`} hx-trigger="submit">
+            <input type="text" placeholder="Write your name here" name="name" />
+            <input type="submit"  value="Submit" />
+        </form>
+    </div>
+</Layout>

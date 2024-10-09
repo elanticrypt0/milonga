@@ -1,4 +1,4 @@
 export const SiteConfig={
-    title:'App name',
+    title:'Milonga',
     version:'0.1.0'
 }
