@@ -9,6 +9,7 @@ type Pagination struct {
 	PageNext     uint
 	PagePrev     uint
 	ItemsPerPage uint
+	TotalItems   uint
 }
 
 func NewPagination(currentPage, itemsPerPage, totalItems uint) *Pagination {
@@ -16,6 +17,7 @@ func NewPagination(currentPage, itemsPerPage, totalItems uint) *Pagination {
 		PageFirst:    1,
 		ItemsPerPage: itemsPerPage,
 		PageCurrent:  currentPage,
+		TotalItems:   totalItems,
 	}
 	p.calculatePages(totalItems)
 	if currentPage+1 <= p.PageLast {
