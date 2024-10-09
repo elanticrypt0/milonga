@@ -21,7 +21,7 @@ func main() {
 
 	app.Server.Use(middleware.CORSWithConfig(middleware.CORSConfig{
 		AllowOrigins: []string{app.Config.URL + ":" + app.Config.Port, "http://localhost:4321"},
-		AllowHeaders: []string{echo.HeaderOrigin, echo.HeaderContentType, echo.HeaderAccept},
+		// AllowHeaders: []string{echo.HeaderOrigin, echo.HeaderContentType, echo.HeaderAccept},
 	}))
 	app.Server.Use(middleware.Logger())
 	app.Server.Use(middleware.Recover())
