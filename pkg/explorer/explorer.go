@@ -34,7 +34,7 @@ func (me *Explorer) traverseDirectory(dir string) error {
 		}
 
 		if !info.IsDir() {
-			fileInfo, err := me.getFileInfo(path)
+			fileInfo, err := me.GetFileInfo(path)
 			if err != nil {
 				return err
 			}

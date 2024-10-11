@@ -36,7 +36,16 @@
                     <input type="submit"  value="Submit" />
                 </form>
             </div>
-            
+            <hr/>
+            <div id="parent2">
+            </div>
+            <button hx-get="/api/hi-from-file"
+                    hx-trigger="click"
+                    hx-target="#parent2"
+                    hx-swap="outerHTML"
+                >
+                    Click Me to take a html file!
+                </button>
 
         </main>
     </div>
