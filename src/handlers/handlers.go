@@ -17,6 +17,12 @@ func Setup(app *app.App) {
 	// para agrupar las urls en api
 	api := app.Server.Group("api")
 
+	api.Get("/htmx-to-astro", func(c *fiber.Ctx) error {
+
+		return milonga_render.SendHTMLFromFile(c, "./public/examplex.html")
+
+	})
+
 	api.Get("/example-htmlx", func(c *fiber.Ctx) error {
 		resp := "<p>Hi from htmlx</p>"
 		// return c.Render("response-htmx", fiber.Map{

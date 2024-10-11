@@ -4,22 +4,16 @@ import {API} from '@/constants/api'
 
 ---
 <Layout title="HTMLX">
-    <h1>HTMLX examples</h1>
-    <button
-        hx-get={`${API.URL}example-htmlx`}
-        hx-trigger="click"
-        hx-target="#resultado"
-    >Say hi</button>
-    <div id="resultado">
-        I will change
-    </div>
-
-    <hr>
-    <h2>Form example</h2>
-    <div id="form-example">
-        <form id="exampleForm" hx-post={`${API.URL}example-sayhi`} hx-trigger="submit">
-            <input type="text" placeholder="Write your name here" name="name" />
-            <input type="submit"  value="Submit" />
-        </form>
-    </div>
+    <div id="contentFromServer">Loading...</div>
+    <div id="htmxCall" hx-target="#contentFromServer"></div>
 </Layout>
+
+<script>
+
+    // load content with HTMX
+    import { API } from "@/constants/api";
+    const htmxEl=document.querySelector("#htmxCall") as HTMLDivElement;
+    htmxEl.setAttribute('hx-get',API.URL+"htmx-to-astro");
+    htmxEl.setAttribute('hx-trigger','load');
+
+</script>
