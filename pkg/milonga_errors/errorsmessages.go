@@ -1,4 +1,4 @@
-package errors
+package milonga_errors
 
 import (
 	"fmt"
