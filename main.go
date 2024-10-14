@@ -12,7 +12,6 @@ import (
 	"github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/gofiber/fiber/v2/middleware/logger"
 	"github.com/gofiber/fiber/v2/middleware/recover"
-	"github.com/gofiber/template/mustache/v2"
 )
 
 func main() {
@@ -29,7 +28,6 @@ func main() {
 		CaseSensitive:     true,
 		StrictRouting:     true,
 		EnablePrintRoutes: false,
-		Views:             mustache.New(app.Config.ViewsPath, ".html"),
 		ServerHeader:      app.Config.Name,
 		AppName:           app.Config.Name + " v" + app.Config.Version,
 	})
