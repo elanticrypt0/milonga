@@ -67,4 +67,24 @@ func Setup(app *app.App) {
 		return milonga_response.SendHTML(c, resp)
 	})
 
+	// ejemplo de utilizacion de plantillas repetidas
+	api.Get("/example-several-records", func(c *fiber.Ctx) error {
+
+		personas := []struct {
+			Name  string `json:"name"`
+			Email string `json:"email"`
+		}{
+			{Name: "John Doe", Email: "john@example.com"},
+			{Name: "Jane Doe", Email: "jane@example.com"},
+			{Name: "Jane Doe", Email: "jane@example.com"},
+			{Name: "Jane Doe", Email: "jane@example.com"},
+		}
+
+		html, err := milonga_response.PrepareHTMLFromSlice("./public/views/personas.html", personas)
+		if err != nil {
+			return milonga_response.SendHTML(c, "No hay ninguna persona para mostrar")
+		}
+		return milonga_response.SendHTML(c, string(html))
+	})
+
 }
