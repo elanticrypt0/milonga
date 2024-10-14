@@ -1,7 +1,7 @@
 package utils
 
 import (
-	"milonga/pkg/errors"
+	"milonga/pkg/milonga_errors"
 	"os"
 
 	"github.com/BurntSushi/toml"
@@ -12,10 +12,10 @@ func LoadTomlFile[T any](file string, stru *T) {
 		tomlData := string(OpenFile(file))
 		_, err := toml.Decode(tomlData, &stru)
 		if err != nil {
-			errors.FatalErr(err)
+			milonga_errors.FatalErr(err)
 		}
 	} else {
-		errors.PrintStr(errors.FileNotExistError(file))
+		milonga_errors.PrintStr(milonga_errors.FileNotExistError(file))
 	}
 }
 
@@ -30,11 +30,11 @@ func OpenFile(file string) []byte {
 	if ExitsFile(file) {
 		filedata, err := os.ReadFile(file)
 		if err != nil {
-			errors.PrintStr(errors.FileNotOpened(file))
+			milonga_errors.PrintStr(milonga_errors.FileNotOpened(file))
 		}
 		return filedata
 	} else {
-		errors.PrintStr(errors.FileNotExistError(file))
+		milonga_errors.PrintStr(milonga_errors.FileNotExistError(file))
 		return nil
 	}
 }
