@@ -1,8 +1,10 @@
 package utils
 
 import (
+	"encoding/json"
 	"milonga/pkg/milonga_errors"
 	"os"
+	"strings"
 
 	"github.com/BurntSushi/toml"
 )
@@ -14,6 +16,16 @@ func LoadTomlFile[T any](file string, stru *T) {
 		if err != nil {
 			milonga_errors.FatalErr(err)
 		}
+	} else {
+		milonga_errors.PrintStr(milonga_errors.FileNotExistError(file))
+	}
+}
+
+func LoadJSONFile[T any](file string, stru *T) {
+	if ExitsFile(file) {
+		fileData := strings.NewReader(string(OpenFile(file)))
+		jsonParser := json.NewDecoder(fileData)
+		jsonParser.Decode(&stru)
 	} else {
 		milonga_errors.PrintStr(milonga_errors.FileNotExistError(file))
 	}
