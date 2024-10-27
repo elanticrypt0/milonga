@@ -1,0 +1,4 @@
+.env
+build/*
+.db/*.db
+todo.md

@@ -2,6 +2,24 @@
 
 Basic bootstrap to create simple and powerfull golangs apps
 
+# Docker
+
+```bash
+
+# Construir la imagen
+docker-compose build
+
+# Iniciar el servicio
+docker-compose up
+
+# O en modo detached
+docker-compose up -d
+
+# Ver logs
+docker-compose logs -f
+
+```
+
 # You can use
 
 default port = 9000 but you can change it 

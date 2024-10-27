@@ -1,0 +1,19 @@
+services:
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "$APP_PORT:9000"
+    volumes:
+      - ./app:/app
+      - go-modules:/go/pkg/mod  # Cache de módulos de Go
+    environment:
+      - GO_ENV=development
+      - CGO_ENABLED=0
+      - GOOS=linux
+    command: air -c .air.toml
+    restart: unless-stopped
+
+volumes:
+  go-modules: # Volumen para cachear los módulos de Go
