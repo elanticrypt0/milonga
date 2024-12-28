@@ -12,14 +12,14 @@ import (
 func Setup(app *app.App) {
 
 	// static path
-	app.Server.Static("/", "./public")
+	app.Server.Static("/", "./web")
 
 	// para agrupar las urls en api
 	api := app.Server.Group("api")
 
 	api.Get("/htmx-to-astro", func(c *fiber.Ctx) error {
 
-		return milonga_response.SendHTMLFromFile(c, "./public/examplex.html")
+		return milonga_response.SendHTMLFromFile(c, "./web/examplex.html")
 
 	})
 
@@ -80,7 +80,7 @@ func Setup(app *app.App) {
 			{Name: "Jane Doe", Email: "jane@example.com"},
 		}
 
-		html, err := milonga_response.PrepareHTMLFromSlice("./public/views/personas.html", personas)
+		html, err := milonga_response.PrepareHTMLFromSlice("./web/views/personas.html", personas)
 		if err != nil {
 			return milonga_response.SendHTML(c, "No hay ninguna persona para mostrar")
 		}

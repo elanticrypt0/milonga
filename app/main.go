@@ -5,8 +5,8 @@ import (
 	"log"
 	"milonga/pkg/app"
 	"milonga/pkg/utils"
-	"milonga/src"
-	"milonga/src/handlers"
+	"milonga/api"
+	"milonga/api/handlers"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"

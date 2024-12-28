@@ -31,7 +31,7 @@ func (me *App) UseDB() {
 	db := dbman.New()
 	dbConfigPath := utils.GetAppRootPath() + me.Config.DBConfigPath
 	fmt.Printf("DB config path: %q\n", me.Config.DBConfigPath)
-	db.SetRootPath("./.db")
+	db.SetRootPath("./database")
 	db.LoadConfigToml(dbConfigPath)
 	me.DB = db
 }

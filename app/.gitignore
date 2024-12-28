@@ -1,4 +1,4 @@
 .env
 build/*
-.db/*.db
+.database/*.db
 todo.md
