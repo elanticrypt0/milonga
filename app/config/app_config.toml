@@ -4,4 +4,7 @@ APP_PORT="8920"
 APP_URL="http://localhost"
 APP_VIEW_PATH="./web/views"
 APP_LOG_PATH="milonga.log"
+
 DB_CONFIG_PATH="/config/db_config.toml"
+
+JWT_SECRET="jwt-deeper-secret"

@@ -35,3 +35,11 @@ func (me *App) UseDB() {
 	db.LoadConfigToml(dbConfigPath)
 	me.DB = db
 }
+
+// load default userData
+func (me *App) LoadDefaultAdminConfig() *DefaultAdmin{
+	admin := &DefaultAdmin{}
+	daConfigPath := utils.GetAppRootPath() + "/config/default_admin.toml"
+	LoadTomlFile(daConfigPath,admin)
+	return admin
+}

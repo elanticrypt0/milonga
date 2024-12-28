@@ -6,7 +6,6 @@ import (
 	"milonga/pkg/app"
 	"milonga/pkg/utils"
 	"milonga/api"
-	"milonga/api/handlers"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
@@ -55,10 +54,10 @@ func main() {
 		TimeZone:   "America/Argentina/Buenos_Aires",
 	}))
 
-	src.AppSetup(app)
-	handlers.Setup(app)
+	src.ApiSetup(app)
 
-	utils.OpenInBrowser(app.Config.AppHost)
+	// remove this to open the web on the start
+	// utils.OpenInBrowser(app.Config.AppHost)
 
 	app.Server.Use(recover.New())
 

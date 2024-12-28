@@ -6,4 +6,4 @@
     port=""
     user=""
     password=""
-    dbname="my_local_db.db"
+    dbname="milonga_db.db"

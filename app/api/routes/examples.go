@@ -1,4 +1,4 @@
-package handlers
+package routes
 
 import (
 	"fmt"
@@ -9,10 +9,7 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
-func Setup(app *app.App) {
-
-	// static path
-	app.Server.Static("/", "./web")
+func examplesRoutes(app *app.App) {
 
 	// para agrupar las urls en api
 	api := app.Server.Group("api")

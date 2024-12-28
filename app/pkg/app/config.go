@@ -9,4 +9,5 @@ type Config struct {
 	ViewsPath    string `toml:"APP_VIEW_PATH"`
 	LogPath      string `toml:"APP_LOG_PATH"`
 	DBConfigPath string `toml:"DB_CONFIG_PATH"`
+	JWTSecret	 string `toml:"JWT_SECRET"`
 }
