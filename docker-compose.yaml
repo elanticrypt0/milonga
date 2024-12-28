@@ -4,7 +4,7 @@ services:
       context: .
       dockerfile: Dockerfile
     ports:
-      - "$APP_PORT:9000"
+      - "$APP_PORT:8920"
     volumes:
       - ./app:/app
       - go-modules:/go/pkg/mod  # Cache de módulos de Go

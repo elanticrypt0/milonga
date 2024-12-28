@@ -2,12 +2,21 @@ FROM golang:1.23-alpine
 
 WORKDIR /app
 
-# Instalar herramientas de desarrollo
+# Instalar herramientas necesarias
 RUN apk add --no-cache git && \
     go install github.com/air-verse/air@latest
 
 # Copiar archivos de configuración
-COPY app/go.mod app/go.sum ./
-RUN go mod download
+COPY . .
 
-# El código se montará como volumen
+# Inicializar módulo si no existe go.mod
+RUN if [ ! -f go.mod ]; then \
+    go mod init milonga && \
+    go mod tidy; \
+    fi
+
+# Exponer el puerto que usará tu aplicación
+EXPOSE 8920
+
+# Usar air para hot-reload
+CMD ["air"]
