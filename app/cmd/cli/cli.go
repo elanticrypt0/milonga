@@ -1,7 +1,7 @@
 package cli
 
-import fmt
+import "fmt"
 
-func Setup(){
+func Setup() {
 	fmt.Println("Hi from cli!")
 }

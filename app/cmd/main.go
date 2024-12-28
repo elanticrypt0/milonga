@@ -1,9 +1,7 @@
-package cli
+package main
 
 import "milonga/cmd/cli"
 
-func main(){
-
+func main() {
 	cli.Setup()
-
 }
