@@ -3,14 +3,25 @@ package routes
 import (
 	"milonga/pkg/app"
 	"milonga/api/handlers"
+	"milonga/pkg/middleware"
 	"github.com/gofiber/fiber/v2"
 )
 
 func usersRoutes(app *app.App){
-	users := app.Server.Group("/users")
+	users := app.Server.Group("/users", middleware.Protected(app))
+	
 	users.Get("/", func(c *fiber.Ctx) error{
 		return handlers.GetAllUsers(c,app)
 	})
+
+	users.Post("/", func(c *fiber.Ctx) error{
+		return handlers.CreateUser(c,app)
+	})
+
+	users.Get("/profile", func (c *fiber.Ctx) error{
+		return handlers.GetProfile(c,app)
+	})
+
 	users.Get("/:id", func(c *fiber.Ctx) error{
 		return handlers.GetUser(c,app)
 	})

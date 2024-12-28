@@ -1,14 +1,14 @@
 package middleware
 
 import (
-    "os"
     "strings"
 
+    "milonga/pkg/app"
     "github.com/gofiber/fiber/v2"
     "github.com/golang-jwt/jwt/v5"
 )
 
-func Protected() fiber.Handler {
+func Protected(app *app.App) fiber.Handler {
     return func(c *fiber.Ctx) error {
         authHeader := c.Get("Authorization")
         
@@ -21,7 +21,7 @@ func Protected() fiber.Handler {
         tokenString := strings.Replace(authHeader, "Bearer ", "", 1)
         
         token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
-            return []byte(os.Getenv("JWT_SECRET")), nil
+            return []byte(app.Config.JWTSecret), nil
         })
 
         if err != nil || !token.Valid {

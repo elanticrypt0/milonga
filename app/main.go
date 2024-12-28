@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"log"
 	"milonga/pkg/app"
-	"milonga/pkg/utils"
 	"milonga/api"
 
 	"github.com/gofiber/fiber/v2"

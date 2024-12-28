@@ -3,6 +3,7 @@ package handlers
 
 import (
     "errors"
+    "fmt"
 
     "github.com/gofiber/fiber/v2"
 	"github.com/golang-jwt/jwt/v5"
@@ -102,6 +103,77 @@ func SearchUser(c *fiber.Ctx, app *app.App) error {
     }
 
     return c.JSON(fiber.Map{
+        "user": fiber.Map{
+            "id":        user.ID,
+            "username":  user.Username,
+            "email":     user.Email,
+            "role":      user.Role,
+            "createdAt": user.CreatedAt,
+            "updatedAt": user.UpdatedAt,
+        },
+    })
+}
+
+// CreateUserInput define la estructura para crear un nuevo usuario
+type CreateUserInput struct {
+    Username string `json:"username" validate:"required"`
+    Email    string `json:"email" validate:"required,email"`
+    Password string `json:"password" validate:"required,min=6"`
+    Role     string `json:"role" validate:"required,oneof=user admin"`
+}
+
+// CreateUser crea un nuevo usuario (solo admins)
+func CreateUser(c *fiber.Ctx, app *app.App) error {
+    // Verificar que el usuario sea admin
+    tokenUser := c.Locals("user").(jwt.MapClaims)
+    
+    if tokenUser["role"] != "admin" {
+        return c.Status(fiber.StatusForbidden).JSON(fiber.Map{
+            "message": "Not authorized to create users",
+        })
+    }
+
+    input := new(CreateUserInput)
+    if err := c.BodyParser(input); err != nil {
+        return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+            "message": "Invalid input",
+        })
+    }
+
+    // Verificar si ya existe un usuario con ese email o username
+    var existingUser models.User
+    if result := app.DB.Primary.Where("email = ? OR username = ?", input.Email, input.Username).First(&existingUser); result.Error == nil {
+        return c.Status(fiber.StatusConflict).JSON(fiber.Map{
+            "message": "User with this email or username already exists",
+        })
+    }
+
+    // Hash de la contraseña
+    hashedPassword, err := bcrypt.GenerateFromPassword([]byte(input.Password), bcrypt.DefaultCost)
+    if err != nil {
+        return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+            "message": "Error hashing password",
+        })
+    }
+
+    // Crear el nuevo usuario
+    user := &models.User{
+        Username: input.Username,
+        Email:    input.Email,
+        Password: string(hashedPassword),
+        Role:     input.Role,
+    }
+
+    result := app.DB.Primary.Create(&user)
+    if result.Error != nil {
+        return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+            "message": "Error creating user",
+            "error":   result.Error.Error(),
+        })
+    }
+
+    return c.Status(fiber.StatusCreated).JSON(fiber.Map{
+        "message": "User created successfully",
         "user": fiber.Map{
             "id":        user.ID,
             "username":  user.Username,

@@ -3,6 +3,9 @@ package handlers
 import (
     "time"
 
+    "errors"
+    "gorm.io/gorm"
+
     "github.com/gofiber/fiber/v2"
     "github.com/golang-jwt/jwt/v5"
     "golang.org/x/crypto/bcrypt"
@@ -91,6 +94,7 @@ func Login(c *fiber.Ctx,app *app.App) error {
     claims := token.Claims.(jwt.MapClaims)
     claims["user_id"] = user.ID
     claims["email"] = user.Email
+    claims["role"] = user.Role
     claims["exp"] = time.Now().Add(time.Hour * 72).Unix()
 
     t, err := token.SignedString([]byte(app.Config.JWTSecret))
@@ -106,6 +110,37 @@ func Login(c *fiber.Ctx,app *app.App) error {
             "id":       user.ID,
             "username": user.Username,
             "email":    user.Email,
+        },
+    })
+}
+
+// GetProfile obtiene la información del usuario autenticado
+func GetProfile(c *fiber.Ctx, app *app.App) error {
+    // Obtener los claims del token JWT
+    tokenUser := c.Locals("user").(jwt.MapClaims)
+    userID := tokenUser["user_id"].(string)
+
+    var user models.User
+    result := app.DB.Primary.First(&user, "id = ?", userID)
+    if result.Error != nil {
+        if errors.Is(result.Error, gorm.ErrRecordNotFound) {
+            return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
+                "message": "User not found",
+            })
+        }
+        return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+            "message": "Error getting user profile",
+        })
+    }
+
+    return c.JSON(fiber.Map{
+        "user": fiber.Map{
+            "id":        user.ID,
+            "username":  user.Username,
+            "email":     user.Email,
+            "role":      user.Role,
+            "createdAt": user.CreatedAt,
+            "updatedAt": user.UpdatedAt,
         },
     })
 }

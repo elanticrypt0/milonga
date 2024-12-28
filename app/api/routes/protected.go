@@ -8,7 +8,7 @@ import(
 )
 
 func protectedRoutes(app *app.App){
-    protected := app.Server.Group("/protected", middleware.Protected())
+    protected := app.Server.Group("/protected", middleware.Protected(app))
     protected.Get("/index", func(c *fiber.Ctx) error {
         return handlers.ProtectedIndex(c, app)
     })
