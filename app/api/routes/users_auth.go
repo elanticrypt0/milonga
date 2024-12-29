@@ -7,7 +7,10 @@ import (
 )
 
 func usersRoutes(app *app.App) {
-	users := app.Server.Group("/users", middleware.IsLogged(app), middleware.NotUser(app))
+
+	middleware := middleware.NewUserAuthMiddelware(app)
+
+	users := app.Server.Group("/users", middleware.IsLogged(), middleware.NotUser())
 
 	handler := handlers.NewUserHandler(app, app.DB.Primary)
 	auth_handler := handlers.NewAuthHandler(app, app.DB.Primary)
@@ -21,7 +24,7 @@ func usersRoutes(app *app.App) {
 	users.Get("/:id", handler.GetUser)
 	users.Get("/search", handler.SearchUser)
 	users.Put("/:id", handler.UpdateUser)
-	users.Delete("/:id", middleware.RequireRole(app, "admin"), handler.DeleteUser)
+	users.Delete("/:id", middleware.RequireRole("admin"), handler.DeleteUser)
 }
 
 func authRoutes(app *app.App) {

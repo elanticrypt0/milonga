@@ -10,8 +10,20 @@ import (
 	"github.com/golang-jwt/jwt/v5"
 )
 
+type UserAuthMiddleware struct {
+	app       *app.App
+	jwtSecret string
+}
+
+func NewUserAuthMiddelware(app *app.App) *UserAuthMiddleware {
+	return &UserAuthMiddleware{
+		app:       app,
+		jwtSecret: app.Config.JWTSecret,
+	}
+}
+
 // ValidateToken es una función auxiliar que valida el token y retorna los claims
-func ValidateToken(c *fiber.Ctx, jwtSecret string) (jwt.MapClaims, error) {
+func (me *UserAuthMiddleware) ValidateToken(c *fiber.Ctx) (jwt.MapClaims, error) {
 	authHeader := c.Get("Authorization")
 
 	if authHeader == "" {
@@ -21,7 +33,7 @@ func ValidateToken(c *fiber.Ctx, jwtSecret string) (jwt.MapClaims, error) {
 	tokenString := strings.Replace(authHeader, "Bearer ", "", 1)
 
 	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
-		return []byte(jwtSecret), nil
+		return []byte(me.jwtSecret), nil
 	})
 
 	if err != nil || !token.Valid {
@@ -33,9 +45,9 @@ func ValidateToken(c *fiber.Ctx, jwtSecret string) (jwt.MapClaims, error) {
 }
 
 // Protected verifica que el token sea válido
-func IsLogged(app *app.App) fiber.Handler {
+func (me *UserAuthMiddleware) IsLogged() fiber.Handler {
 	return func(c *fiber.Ctx) error {
-		claims, err := ValidateToken(c, app.Config.JWTSecret)
+		claims, err := me.ValidateToken(c)
 		if err != nil {
 			return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
 				"message": "unauthorized",
@@ -48,7 +60,7 @@ func IsLogged(app *app.App) fiber.Handler {
 }
 
 // RequireRole verifica que el usuario tenga un rol específico
-func RequireRole(app *app.App, allowedRoles ...string) fiber.Handler {
+func (me *UserAuthMiddleware) RequireRole(allowedRoles ...string) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		claims := c.Locals("user").(jwt.MapClaims)
 		userRole := fmt.Sprintf("%v", claims["role"])
@@ -67,7 +79,7 @@ func RequireRole(app *app.App, allowedRoles ...string) fiber.Handler {
 }
 
 // NotUser verifica que el usuario no tenga rol de usuario
-func NotUser(app *app.App) fiber.Handler {
+func (me *UserAuthMiddleware) NotUser() fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		claims := c.Locals("user").(jwt.MapClaims)
 		if models.IsUser(fmt.Sprintf("%v", claims["role"])) {

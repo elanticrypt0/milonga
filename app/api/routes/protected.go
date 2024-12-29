@@ -9,7 +9,10 @@ import (
 )
 
 func protectedRoutes(app *app.App) {
-	protected := app.Server.Group("/protected", middleware.IsLogged(app))
+
+	middleware := middleware.NewUserAuthMiddelware(app)
+
+	protected := app.Server.Group("/protected", middleware.IsLogged())
 	protected.Get("/index", func(c *fiber.Ctx) error {
 		return handlers.ProtectedIndex(c, app)
 	})
