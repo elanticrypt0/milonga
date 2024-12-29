@@ -3,7 +3,7 @@ package middleware
 import (
 	"fmt"
 	"milonga/api/models"
-	"milonga/pkg/app"
+	"milonga/internal/app"
 	"strings"
 
 	"github.com/gofiber/fiber/v2"

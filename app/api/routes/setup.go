@@ -1,7 +1,7 @@
 package routes
 
 import (
-	"milonga/pkg/app"
+	"milonga/internal/app"
 )
 
 func RoutesSetup(app *app.App) {

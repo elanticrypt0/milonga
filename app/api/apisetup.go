@@ -1,9 +1,9 @@
 package src
 
 import (
-	"milonga/pkg/app"
 	"milonga/api/models"
 	"milonga/api/routes"
+	"milonga/internal/app"
 )
 
 func ApiSetup(app *app.App) {
@@ -14,7 +14,7 @@ func ApiSetup(app *app.App) {
 
 	app.DB.Primary.AutoMigrate(&models.User{})
 	// remove in production
-	models.CreateDefaultAdmin(app.DB.Primary,app)
+	models.CreateDefaultAdmin(app.DB.Primary, app)
 
 	routes.RoutesSetup(app)
 

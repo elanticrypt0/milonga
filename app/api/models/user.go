@@ -7,7 +7,7 @@ import (
 	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
 
-	"milonga/pkg/app"
+	"milonga/internal/app"
 )
 
 type User struct {

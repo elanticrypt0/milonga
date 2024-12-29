@@ -3,8 +3,8 @@ package main
 import (
 	"fmt"
 	"log"
-	"milonga/pkg/app"
-	"milonga/api"
+	src "milonga/api"
+	"milonga/internal/app"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"

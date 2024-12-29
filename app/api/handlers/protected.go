@@ -1,7 +1,7 @@
 package handlers
 
 import (
-	"milonga/pkg/app"
+	"milonga/internal/app"
 
 	"github.com/gofiber/fiber/v2"
 )

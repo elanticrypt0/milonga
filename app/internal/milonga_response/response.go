@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"errors"
 	"fmt"
-	"milonga/pkg/utils"
+	"milonga/internal/utils"
 	"reflect"
 	"strings"
 

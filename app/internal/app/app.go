@@ -2,7 +2,7 @@ package app
 
 import (
 	"fmt"
-	"milonga/pkg/utils"
+	"milonga/internal/utils"
 
 	"github.com/elanticrypt0/dbman"
 	"github.com/gofiber/fiber/v2"
@@ -37,9 +37,9 @@ func (me *App) UseDB() {
 }
 
 // load default userData
-func (me *App) LoadDefaultAdminConfig() *DefaultAdmin{
+func (me *App) LoadDefaultAdminConfig() *DefaultAdmin {
 	admin := &DefaultAdmin{}
 	daConfigPath := utils.GetAppRootPath() + "/config/default_admin.toml"
-	LoadTomlFile(daConfigPath,admin)
+	LoadTomlFile(daConfigPath, admin)
 	return admin
 }

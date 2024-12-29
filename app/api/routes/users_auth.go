@@ -2,8 +2,8 @@ package routes
 
 import (
 	"milonga/api/handlers"
-	"milonga/pkg/app"
-	"milonga/pkg/middleware"
+	"milonga/internal/app"
+	"milonga/internal/middleware"
 )
 
 func usersRoutes(app *app.App) {

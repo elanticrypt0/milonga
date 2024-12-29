@@ -8,7 +8,7 @@ import (
 	"gorm.io/gorm"
 
 	"milonga/api/models"
-	"milonga/pkg/app"
+	"milonga/internal/app"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/golang-jwt/jwt/v5"
