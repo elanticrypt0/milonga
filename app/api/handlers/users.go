@@ -2,306 +2,326 @@
 package handlers
 
 import (
-    "errors"
+	"errors"
+	"fmt"
 
-    "github.com/gofiber/fiber/v2"
-	"github.com/golang-jwt/jwt/v5"
-    "golang.org/x/crypto/bcrypt"
-    "gorm.io/gorm"
-    "milonga/api/models"
+	"milonga/api/models"
 	"milonga/pkg/app"
+
+	"github.com/gofiber/fiber/v2"
+	"github.com/golang-jwt/jwt/v5"
+	"golang.org/x/crypto/bcrypt"
+	"gorm.io/gorm"
 )
 
 // GetAllUsers obtiene todos los usuarios
 func GetAllUsers(c *fiber.Ctx, app *app.App) error {
-    var users []models.User
-    result := app.DB.Primary.Find(&users)
-    if result.Error != nil {
-        return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-            "message": "Error getting users",
-        })
-    }
+	var users []models.User
+	result := app.DB.Primary.Find(&users)
+	if result.Error != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"message": "Error getting users",
+		})
+	}
 
-    // Limpiamos las contraseñas antes de enviar
-    var cleanUsers []fiber.Map
-    for _, user := range users {
-        cleanUsers = append(cleanUsers, fiber.Map{
-            "id":        user.ID,
-            "username":  user.Username,
-            "email":     user.Email,
-            "role":      user.Role,
-            "createdAt": user.CreatedAt,
-            "updatedAt": user.UpdatedAt,
-        })
-    }
+	// Limpiamos las contraseñas antes de enviar
+	var cleanUsers []fiber.Map
+	for _, user := range users {
+		cleanUsers = append(cleanUsers, fiber.Map{
+			"id":        user.ID,
+			"username":  user.Username,
+			"email":     user.Email,
+			"role":      user.Role,
+			"createdAt": user.CreatedAt,
+			"updatedAt": user.UpdatedAt,
+		})
+	}
 
-    return c.JSON(fiber.Map{
-        "users": cleanUsers,
-    })
+	return c.JSON(fiber.Map{
+		"users": cleanUsers,
+	})
 }
 
 // GetUser obtiene un usuario por ID
 func GetUser(c *fiber.Ctx, app *app.App) error {
-    id := c.Params("id")
-    var user models.User
+	id := c.Params("id")
+	var user models.User
 
-    result := app.DB.Primary.First(&user, "id = ?", id)
-    if result.Error != nil {
-        if errors.Is(result.Error, gorm.ErrRecordNotFound) {
-            return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
-                "message": "User not found",
-            })
-        }
-        return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-            "message": "Error getting user",
-        })
-    }
+	result := app.DB.Primary.First(&user, "id = ?", id)
+	if result.Error != nil {
+		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
+			return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
+				"message": "User not found",
+			})
+		}
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"message": "Error getting user",
+		})
+	}
 
-    return c.JSON(fiber.Map{
-        "user": fiber.Map{
-            "id":        user.ID,
-            "username":  user.Username,
-            "email":     user.Email,
-            "role":      user.Role,
-            "createdAt": user.CreatedAt,
-            "updatedAt": user.UpdatedAt,
-        },
-    })
+	return c.JSON(fiber.Map{
+		"user": fiber.Map{
+			"id":        user.ID,
+			"username":  user.Username,
+			"email":     user.Email,
+			"role":      user.Role,
+			"createdAt": user.CreatedAt,
+			"updatedAt": user.UpdatedAt,
+		},
+	})
 }
 
 // SearchUser busca un usuario por email o username
 func SearchUser(c *fiber.Ctx, app *app.App) error {
-    email := c.Query("email")
-    username := c.Query("username")
-    var user models.User
+	email := c.Query("email")
+	username := c.Query("username")
+	var user models.User
 
-    if email == "" && username == "" {
-        return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-            "message": "Email or username is required",
-        })
-    }
+	if email == "" && username == "" {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"message": "Email or username is required",
+		})
+	}
 
-    query := app.DB.Primary
-    if email != "" {
-        query = query.Where("email = ?", email)
-    }
-    if username != "" {
-        query = query.Or("username = ?", username)
-    }
+	query := app.DB.Primary
+	if email != "" {
+		query = query.Where("email = ?", email)
+	}
+	if username != "" {
+		query = query.Or("username = ?", username)
+	}
 
-    result := query.First(&user)
-    if result.Error != nil {
-        if errors.Is(result.Error, gorm.ErrRecordNotFound) {
-            return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
-                "message": "User not found",
-            })
-        }
-        return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-            "message": "Error searching user",
-        })
-    }
+	result := query.First(&user)
+	if result.Error != nil {
+		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
+			return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
+				"message": "User not found",
+			})
+		}
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"message": "Error searching user",
+		})
+	}
 
-    return c.JSON(fiber.Map{
-        "user": fiber.Map{
-            "id":        user.ID,
-            "username":  user.Username,
-            "email":     user.Email,
-            "role":      user.Role,
-            "createdAt": user.CreatedAt,
-            "updatedAt": user.UpdatedAt,
-        },
-    })
+	return c.JSON(fiber.Map{
+		"user": fiber.Map{
+			"id":        user.ID,
+			"username":  user.Username,
+			"email":     user.Email,
+			"role":      user.Role,
+			"createdAt": user.CreatedAt,
+			"updatedAt": user.UpdatedAt,
+		},
+	})
 }
 
 // CreateUserInput define la estructura para crear un nuevo usuario
 type CreateUserInput struct {
-    Username string `json:"username" validate:"required"`
-    Email    string `json:"email" validate:"required,email"`
-    Password string `json:"password" validate:"required,min=6"`
-    Role     string `json:"role" validate:"required,oneof=user admin"`
+	Username string `json:"username" validate:"required"`
+	Email    string `json:"email" validate:"required,email"`
+	Password string `json:"password" validate:"required,min=6"`
+	Role     string `json:"role" validate:"required,oneof=user admin"`
 }
 
 // CreateUser crea un nuevo usuario (solo admins)
 func CreateUser(c *fiber.Ctx, app *app.App) error {
-    // Verificar que el usuario sea admin
-    tokenUser := c.Locals("user").(jwt.MapClaims)
-    
-    if tokenUser["role"] != "admin" {
-        return c.Status(fiber.StatusForbidden).JSON(fiber.Map{
-            "message": "Not authorized to create users",
-        })
-    }
+	// Verificar que el usuario sea admin
+	tokenUser := c.Locals("user").(jwt.MapClaims)
 
-    input := new(CreateUserInput)
-    if err := c.BodyParser(input); err != nil {
-        return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-            "message": "Invalid input",
-        })
-    }
+	if tokenUser["role"] != "admin" {
+		return c.Status(fiber.StatusForbidden).JSON(fiber.Map{
+			"message": "Not authorized to create users",
+		})
+	}
 
-    // Verificar si ya existe un usuario con ese email o username
-    var existingUser models.User
-    if result := app.DB.Primary.Where("email = ? OR username = ?", input.Email, input.Username).First(&existingUser); result.Error == nil {
-        return c.Status(fiber.StatusConflict).JSON(fiber.Map{
-            "message": "User with this email or username already exists",
-        })
-    }
+	input := new(CreateUserInput)
+	if err := c.BodyParser(input); err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"message": "Invalid input",
+		})
+	}
 
-    // Hash de la contraseña
-    hashedPassword, err := bcrypt.GenerateFromPassword([]byte(input.Password), bcrypt.DefaultCost)
-    if err != nil {
-        return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-            "message": "Error hashing password",
-        })
-    }
+	// Verificar si ya existe un usuario con ese email o username
+	var existingUser models.User
+	if result := app.DB.Primary.Where("email = ? OR username = ?", input.Email, input.Username).First(&existingUser); result.Error == nil {
+		return c.Status(fiber.StatusConflict).JSON(fiber.Map{
+			"message": "User with this email or username already exists",
+		})
+	}
 
-    // Crear el nuevo usuario
-    user := &models.User{
-        Username: input.Username,
-        Email:    input.Email,
-        Password: string(hashedPassword),
-        Role:     input.Role,
-    }
+	// Hash de la contraseña
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(input.Password), bcrypt.DefaultCost)
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"message": "Error hashing password",
+		})
+	}
 
-    result := app.DB.Primary.Create(&user)
-    if result.Error != nil {
-        return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-            "message": "Error creating user",
-            "error":   result.Error.Error(),
-        })
-    }
+	user_role, err := models.NewUserRole(input.Role)
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"message": err,
+		})
+	}
 
-    return c.Status(fiber.StatusCreated).JSON(fiber.Map{
-        "message": "User created successfully",
-        "user": fiber.Map{
-            "id":        user.ID,
-            "username":  user.Username,
-            "email":     user.Email,
-            "role":      user.Role,
-            "createdAt": user.CreatedAt,
-            "updatedAt": user.UpdatedAt,
-        },
-    })
+	// Crear el nuevo usuario
+	user := &models.User{
+		Username: input.Username,
+		Email:    input.Email,
+		Password: string(hashedPassword),
+		Role:     user_role,
+	}
+
+	result := app.DB.Primary.Create(&user)
+	if result.Error != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"message": "Error creating user",
+			"error":   result.Error.Error(),
+		})
+	}
+
+	return c.Status(fiber.StatusCreated).JSON(fiber.Map{
+		"message": "User created successfully",
+		"user": fiber.Map{
+			"id":        user.ID,
+			"username":  user.Username,
+			"email":     user.Email,
+			"role":      user.Role,
+			"createdAt": user.CreatedAt,
+			"updatedAt": user.UpdatedAt,
+		},
+	})
 }
 
 type UpdateUserInput struct {
-    Username string `json:"username"`
-    Email    string `json:"email"`
-    Password string `json:"password"`
-    Role     string `json:"role"`
+	Username string `json:"username"`
+	Email    string `json:"email"`
+	Password string `json:"password"`
+	Role     string `json:"role"`
 }
 
 // UpdateUser actualiza un usuario existente
 func UpdateUser(c *fiber.Ctx, app *app.App) error {
-    id := c.Params("id")
-    input := new(UpdateUserInput)
+	id := c.Params("id")
+	input := new(UpdateUserInput)
 
-    if err := c.BodyParser(input); err != nil {
-        return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-            "message": "Invalid input",
-        })
-    }
+	if err := c.BodyParser(input); err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"message": "Invalid input",
+		})
+	}
 
-    var user models.User
-    result := app.DB.Primary.First(&user, "id = ?", id)
-    if result.Error != nil {
-        if errors.Is(result.Error, gorm.ErrRecordNotFound) {
-            return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
-                "message": "User not found",
-            })
-        }
-        return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-            "message": "Error getting user",
-        })
-    }
+	var user models.User
+	result := app.DB.Primary.First(&user, "id = ?", id)
+	if result.Error != nil {
+		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
+			return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
+				"message": "User not found",
+			})
+		}
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"message": "Error getting user",
+		})
+	}
 
-    // Verificar si el usuario tiene permisos para actualizar
-    tokenUser := c.Locals("user").(jwt.MapClaims)
-    if tokenUser["user_id"] != id && tokenUser["role"] != "admin" {
-        return c.Status(fiber.StatusForbidden).JSON(fiber.Map{
-            "message": "Not authorized to update this user",
-        })
-    }
+	// Verificar si el usuario tiene permisos para actualizar
+	tokenUser := c.Locals("user").(jwt.MapClaims)
+	if tokenUser["user_id"] != id && tokenUser["role"] != "admin" {
+		return c.Status(fiber.StatusForbidden).JSON(fiber.Map{
+			"message": "Not authorized to update this user",
+		})
+	}
 
-    updates := make(map[string]interface{})
-    if input.Username != "" {
-        updates["username"] = input.Username
-    }
-    if input.Email != "" {
-        updates["email"] = input.Email
-    }
-    if input.Role != "" {
-        // Solo los admins pueden cambiar roles
-        if tokenUser["role"] != "admin" {
-            return c.Status(fiber.StatusForbidden).JSON(fiber.Map{
-                "message": "Not authorized to change roles",
-            })
-        }
-        updates["role"] = input.Role
-    }
-    if input.Password != "" {
-        hashedPassword, err := bcrypt.GenerateFromPassword([]byte(input.Password), bcrypt.DefaultCost)
-        if err != nil {
-            return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-                "message": "Error hashing password",
-            })
-        }
-        updates["password"] = string(hashedPassword)
-    }
+	updates := make(map[string]interface{})
+	if input.Username != "" {
+		updates["username"] = input.Username
+	}
+	if input.Email != "" {
+		updates["email"] = input.Email
+	}
 
-    result = app.DB.Primary.Model(&user).Updates(updates)
-    if result.Error != nil {
-        return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-            "message": "Error updating user",
-        })
-    }
+	user_role, err := models.NewUserRole(input.Role)
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"message": err,
+		})
+	}
 
-    return c.JSON(fiber.Map{
-        "message": "User updated successfully",
-        "user": fiber.Map{
-            "id":        user.ID,
-            "username":  user.Username,
-            "email":     user.Email,
-            "role":      user.Role,
-            "createdAt": user.CreatedAt,
-            "updatedAt": user.UpdatedAt,
-        },
-    })
+	if input.Role != "" {
+		// Solo los admins pueden cambiar roles
+		if tokenUser["role"] != "admin" {
+			return c.Status(fiber.StatusForbidden).JSON(fiber.Map{
+				"message": "Not authorized to change roles",
+			})
+		}
+		updates["role"] = user_role
+	}
+	if input.Password != "" {
+		hashedPassword, err := bcrypt.GenerateFromPassword([]byte(input.Password), bcrypt.DefaultCost)
+		if err != nil {
+			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+				"message": "Error hashing password",
+			})
+		}
+		updates["password"] = string(hashedPassword)
+	}
+
+	result = app.DB.Primary.Model(&user).Updates(updates)
+	if result.Error != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"message": "Error updating user",
+		})
+	}
+
+	return c.JSON(fiber.Map{
+		"message": "User updated successfully",
+		"user": fiber.Map{
+			"id":        user.ID,
+			"username":  user.Username,
+			"email":     user.Email,
+			"role":      user.Role,
+			"createdAt": user.CreatedAt,
+			"updatedAt": user.UpdatedAt,
+		},
+	})
 }
 
 // DeleteUser elimina un usuario
 func DeleteUser(c *fiber.Ctx, app *app.App) error {
-    id := c.Params("id")
-    
-    // Verificar si el usuario tiene permisos para eliminar
-    tokenUser := c.Locals("user").(jwt.MapClaims)
-    if tokenUser["role"] != "admin" {
-        return c.Status(fiber.StatusForbidden).JSON(fiber.Map{
-            "message": "Not authorized to delete users",
-        })
-    }
+	id := c.Params("id")
 
-    var user models.User
-    result := app.DB.Primary.First(&user, "id = ?", id)
-    if result.Error != nil {
-        if errors.Is(result.Error, gorm.ErrRecordNotFound) {
-            return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
-                "message": "User not found",
-            })
-        }
-        return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-            "message": "Error getting user",
-        })
-    }
+	// Verificar si el usuario tiene permisos para eliminar
+	tokenUser := c.Locals("user").(jwt.MapClaims)
 
-    result = app.DB.Primary.Delete(&user)
-    if result.Error != nil {
-        return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-            "message": "Error deleting user",
-        })
-    }
+	token_role := fmt.Sprintf("%v", tokenUser["role"])
 
-    return c.JSON(fiber.Map{
-        "message": "User deleted successfully",
-    })
+	if models.IsAdmin(token_role) {
+		return c.Status(fiber.StatusForbidden).JSON(fiber.Map{
+			"message": "Not authorized to delete users",
+		})
+	}
+
+	var user models.User
+	result := app.DB.Primary.First(&user, "id = ?", id)
+	if result.Error != nil {
+		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
+			return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
+				"message": "User not found",
+			})
+		}
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"message": "Error getting user",
+		})
+	}
+
+	result = app.DB.Primary.Delete(&user)
+	if result.Error != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"message": "Error deleting user",
+		})
+	}
+
+	return c.JSON(fiber.Map{
+		"message": "User deleted successfully",
+	})
 }

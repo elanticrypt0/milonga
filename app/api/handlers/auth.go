@@ -1,146 +1,148 @@
 package handlers
 
 import (
-    "time"
+	"time"
 
-    "errors"
-    "gorm.io/gorm"
+	"errors"
 
-    "github.com/gofiber/fiber/v2"
-    "github.com/golang-jwt/jwt/v5"
-    "golang.org/x/crypto/bcrypt"
-    "milonga/api/models"
-    "milonga/pkg/app"
+	"gorm.io/gorm"
+
+	"milonga/api/models"
+	"milonga/pkg/app"
+
+	"github.com/gofiber/fiber/v2"
+	"github.com/golang-jwt/jwt/v5"
+	"golang.org/x/crypto/bcrypt"
 )
 
 type LoginInput struct {
-    Email    string `json:"email"`
-    Password string `json:"password"`
+	Email    string `json:"email"`
+	Password string `json:"password"`
 }
 
 type RegisterInput struct {
-    Username string `json:"username"`
-    Email    string `json:"email"`
-    Password string `json:"password"`
+	Username string `json:"username"`
+	Email    string `json:"email"`
+	Password string `json:"password"`
 }
 
-func Register(c *fiber.Ctx,app *app.App) error {
-    input := new(RegisterInput)
-    
-    if err := c.BodyParser(input); err != nil {
-        return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-            "message": "Invalid input",
-        })
-    }
+func Register(c *fiber.Ctx, app *app.App) error {
+	input := new(RegisterInput)
 
-    // Hash password
-    hashedPassword, err := bcrypt.GenerateFromPassword([]byte(input.Password), bcrypt.DefaultCost)
-    if err != nil {
-        return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-            "message": "Error hashing password",
-        })
-    }
+	if err := c.BodyParser(input); err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"message": "Invalid input",
+		})
+	}
 
-    user := &models.User{
-        Username: input.Username,
-        Email:    input.Email,
-        Password: string(hashedPassword),
-    }
+	// Hash password
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(input.Password), bcrypt.DefaultCost)
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"message": "Error hashing password",
+		})
+	}
 
-    result := app.DB.Primary.Create(&user)
-    if result.Error != nil {
-        return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-            "message": "Could not create user",
-        })
-    }
+	user := &models.User{
+		Username: input.Username,
+		Email:    input.Email,
+		Password: string(hashedPassword),
+	}
 
-    return c.Status(fiber.StatusCreated).JSON(fiber.Map{
-        "message": "User created successfully",
-        "user": fiber.Map{
-            "id":       user.ID,
-            "username": user.Username,
-            "email":    user.Email,
-        },
-    })
+	result := app.DB.Primary.Create(&user)
+	if result.Error != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"message": "Could not create user",
+		})
+	}
+
+	return c.Status(fiber.StatusCreated).JSON(fiber.Map{
+		"message": "User created successfully",
+		"user": fiber.Map{
+			"id":       user.ID,
+			"username": user.Username,
+			"email":    user.Email,
+		},
+	})
 }
 
-func Login(c *fiber.Ctx,app *app.App) error {
-    input := new(LoginInput)
-    
-    if err := c.BodyParser(input); err != nil {
-        return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-            "message": "Invalid input",
-        })
-    }
+func Login(c *fiber.Ctx, app *app.App) error {
+	input := new(LoginInput)
 
-    var user models.User
-    result := app.DB.Primary.Where("email = ?", input.Email).First(&user)
-    if result.Error != nil {
-        return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
-            "message": "Invalid credentials",
-        })
-    }
+	if err := c.BodyParser(input); err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"message": "Invalid input",
+		})
+	}
 
-    // Verify password
-    err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(input.Password))
-    if err != nil {
-        return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
-            "message": "Invalid credentials",
-        })
-    }
+	var user models.User
+	result := app.DB.Primary.Where("email = ? AND status = ?", input.Email, models.UserStatusEnabled).First(&user)
+	if result.Error != nil {
+		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
+			"message": "Invalid credentials",
+		})
+	}
 
-    // Create token
-    token := jwt.New(jwt.SigningMethodHS256)
-    claims := token.Claims.(jwt.MapClaims)
-    claims["user_id"] = user.ID
-    claims["email"] = user.Email
-    claims["role"] = user.Role
-    claims["exp"] = time.Now().Add(time.Hour * 72).Unix()
+	// Verify password
+	err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(input.Password))
+	if err != nil {
+		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
+			"message": "Invalid credentials",
+		})
+	}
 
-    t, err := token.SignedString([]byte(app.Config.JWTSecret))
-    if err != nil {
-        return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-            "message": "Could not login",
-        })
-    }
+	// Create token
+	token := jwt.New(jwt.SigningMethodHS256)
+	claims := token.Claims.(jwt.MapClaims)
+	claims["user_id"] = user.ID
+	claims["email"] = user.Email
+	claims["role"] = user.Role
+	claims["exp"] = time.Now().Add(time.Hour * 72).Unix()
 
-    return c.JSON(fiber.Map{
-        "token": t,
-        "user": fiber.Map{
-            "id":       user.ID,
-            "username": user.Username,
-            "email":    user.Email,
-        },
-    })
+	t, err := token.SignedString([]byte(app.Config.JWTSecret))
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"message": "Could not login",
+		})
+	}
+
+	return c.JSON(fiber.Map{
+		"token": t,
+		"user": fiber.Map{
+			"id":       user.ID,
+			"username": user.Username,
+			"email":    user.Email,
+		},
+	})
 }
 
 // GetProfile obtiene la información del usuario autenticado
 func GetProfile(c *fiber.Ctx, app *app.App) error {
-    // Obtener los claims del token JWT
-    tokenUser := c.Locals("user").(jwt.MapClaims)
-    userID := tokenUser["user_id"].(string)
+	// Obtener los claims del token JWT
+	tokenUser := c.Locals("user").(jwt.MapClaims)
+	userID := tokenUser["user_id"].(string)
 
-    var user models.User
-    result := app.DB.Primary.First(&user, "id = ?", userID)
-    if result.Error != nil {
-        if errors.Is(result.Error, gorm.ErrRecordNotFound) {
-            return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
-                "message": "User not found",
-            })
-        }
-        return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-            "message": "Error getting user profile",
-        })
-    }
+	user := &models.User{}
+	err := user.GetProfile(app.DB.Primary, userID)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
+				"message": "User not found",
+			})
+		}
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"message": "Error getting user profile",
+		})
+	}
 
-    return c.JSON(fiber.Map{
-        "user": fiber.Map{
-            "id":        user.ID,
-            "username":  user.Username,
-            "email":     user.Email,
-            "role":      user.Role,
-            "createdAt": user.CreatedAt,
-            "updatedAt": user.UpdatedAt,
-        },
-    })
+	return c.JSON(fiber.Map{
+		"user": fiber.Map{
+			"id":        user.ID,
+			"username":  user.Username,
+			"email":     user.Email,
+			"role":      user.Role,
+			"createdAt": user.CreatedAt,
+			"updatedAt": user.UpdatedAt,
+		},
+	})
 }
