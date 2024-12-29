@@ -14,10 +14,22 @@ import (
 	"gorm.io/gorm"
 )
 
+type UserHandler struct {
+	app *app.App
+	db  *gorm.DB
+}
+
+func NewUserHandler(app *app.App, db *gorm.DB) *UserHandler {
+	return &UserHandler{
+		app: app,
+		db:  db,
+	}
+}
+
 // GetAllUsers obtiene todos los usuarios
-func GetAllUsers(c *fiber.Ctx, app *app.App) error {
+func (me *UserHandler) GetAllUsers(c *fiber.Ctx) error {
 	var users []models.User
-	result := app.DB.Primary.Find(&users)
+	result := me.db.Find(&users)
 	if result.Error != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 			"message": "Error getting users",
@@ -43,11 +55,11 @@ func GetAllUsers(c *fiber.Ctx, app *app.App) error {
 }
 
 // GetUser obtiene un usuario por ID
-func GetUser(c *fiber.Ctx, app *app.App) error {
+func (me *UserHandler) GetUser(c *fiber.Ctx) error {
 	id := c.Params("id")
 	var user models.User
 
-	result := app.DB.Primary.First(&user, "id = ?", id)
+	result := me.db.First(&user, "id = ?", id)
 	if result.Error != nil {
 		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
 			return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
@@ -72,7 +84,7 @@ func GetUser(c *fiber.Ctx, app *app.App) error {
 }
 
 // SearchUser busca un usuario por email o username
-func SearchUser(c *fiber.Ctx, app *app.App) error {
+func (me *UserHandler) SearchUser(c *fiber.Ctx) error {
 	email := c.Query("email")
 	username := c.Query("username")
 	var user models.User
@@ -83,7 +95,7 @@ func SearchUser(c *fiber.Ctx, app *app.App) error {
 		})
 	}
 
-	query := app.DB.Primary
+	query := me.db
 	if email != "" {
 		query = query.Where("email = ?", email)
 	}
@@ -124,7 +136,7 @@ type CreateUserInput struct {
 }
 
 // CreateUser crea un nuevo usuario (solo admins)
-func CreateUser(c *fiber.Ctx, app *app.App) error {
+func (me *UserHandler) CreateUser(c *fiber.Ctx) error {
 	// Verificar que el usuario sea admin
 	tokenUser := c.Locals("user").(jwt.MapClaims)
 
@@ -143,7 +155,7 @@ func CreateUser(c *fiber.Ctx, app *app.App) error {
 
 	// Verificar si ya existe un usuario con ese email o username
 	var existingUser models.User
-	if result := app.DB.Primary.Where("email = ? OR username = ?", input.Email, input.Username).First(&existingUser); result.Error == nil {
+	if result := me.db.Where("email = ? OR username = ?", input.Email, input.Username).First(&existingUser); result.Error == nil {
 		return c.Status(fiber.StatusConflict).JSON(fiber.Map{
 			"message": "User with this email or username already exists",
 		})
@@ -172,7 +184,7 @@ func CreateUser(c *fiber.Ctx, app *app.App) error {
 		Role:     user_role,
 	}
 
-	result := app.DB.Primary.Create(&user)
+	result := me.db.Create(&user)
 	if result.Error != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 			"message": "Error creating user",
@@ -201,7 +213,7 @@ type UpdateUserInput struct {
 }
 
 // UpdateUser actualiza un usuario existente
-func UpdateUser(c *fiber.Ctx, app *app.App) error {
+func (me *UserHandler) UpdateUser(c *fiber.Ctx) error {
 	id := c.Params("id")
 	input := new(UpdateUserInput)
 
@@ -212,7 +224,7 @@ func UpdateUser(c *fiber.Ctx, app *app.App) error {
 	}
 
 	var user models.User
-	result := app.DB.Primary.First(&user, "id = ?", id)
+	result := me.db.First(&user, "id = ?", id)
 	if result.Error != nil {
 		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
 			return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
@@ -266,7 +278,7 @@ func UpdateUser(c *fiber.Ctx, app *app.App) error {
 		updates["password"] = string(hashedPassword)
 	}
 
-	result = app.DB.Primary.Model(&user).Updates(updates)
+	result = me.db.Model(&user).Updates(updates)
 	if result.Error != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 			"message": "Error updating user",
@@ -287,7 +299,7 @@ func UpdateUser(c *fiber.Ctx, app *app.App) error {
 }
 
 // DeleteUser elimina un usuario
-func DeleteUser(c *fiber.Ctx, app *app.App) error {
+func (me *UserHandler) DeleteUser(c *fiber.Ctx) error {
 	id := c.Params("id")
 
 	// Verificar si el usuario tiene permisos para eliminar
@@ -302,7 +314,7 @@ func DeleteUser(c *fiber.Ctx, app *app.App) error {
 	}
 
 	var user models.User
-	result := app.DB.Primary.First(&user, "id = ?", id)
+	result := me.db.First(&user, "id = ?", id)
 	if result.Error != nil {
 		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
 			return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
@@ -314,7 +326,7 @@ func DeleteUser(c *fiber.Ctx, app *app.App) error {
 		})
 	}
 
-	result = app.DB.Primary.Delete(&user)
+	result = me.db.Delete(&user)
 	if result.Error != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 			"message": "Error deleting user",

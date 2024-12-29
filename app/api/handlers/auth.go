@@ -15,6 +15,18 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
+type AuthHandler struct {
+	app *app.App
+	db  *gorm.DB
+}
+
+func NewAuthHandler(app *app.App, db *gorm.DB) *AuthHandler {
+	return &AuthHandler{
+		app: app,
+		db:  db,
+	}
+}
+
 type LoginInput struct {
 	Email    string `json:"email"`
 	Password string `json:"password"`
@@ -26,7 +38,7 @@ type RegisterInput struct {
 	Password string `json:"password"`
 }
 
-func Register(c *fiber.Ctx, app *app.App) error {
+func (me *AuthHandler) Register(c *fiber.Ctx) error {
 	input := new(RegisterInput)
 
 	if err := c.BodyParser(input); err != nil {
@@ -49,7 +61,7 @@ func Register(c *fiber.Ctx, app *app.App) error {
 		Password: string(hashedPassword),
 	}
 
-	result := app.DB.Primary.Create(&user)
+	result := me.db.Create(&user)
 	if result.Error != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 			"message": "Could not create user",
@@ -66,7 +78,7 @@ func Register(c *fiber.Ctx, app *app.App) error {
 	})
 }
 
-func Login(c *fiber.Ctx, app *app.App) error {
+func (me *AuthHandler) Login(c *fiber.Ctx) error {
 	input := new(LoginInput)
 
 	if err := c.BodyParser(input); err != nil {
@@ -76,7 +88,7 @@ func Login(c *fiber.Ctx, app *app.App) error {
 	}
 
 	var user models.User
-	result := app.DB.Primary.Where("email = ? AND status = ?", input.Email, models.UserStatusEnabled).First(&user)
+	result := me.db.Where("email = ? AND status = ?", input.Email, models.UserStatusEnabled).First(&user)
 	if result.Error != nil {
 		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
 			"message": "Invalid credentials",
@@ -99,7 +111,7 @@ func Login(c *fiber.Ctx, app *app.App) error {
 	claims["role"] = user.Role
 	claims["exp"] = time.Now().Add(time.Hour * 72).Unix()
 
-	t, err := token.SignedString([]byte(app.Config.JWTSecret))
+	t, err := token.SignedString([]byte(me.app.Config.JWTSecret))
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 			"message": "Could not login",
@@ -117,13 +129,13 @@ func Login(c *fiber.Ctx, app *app.App) error {
 }
 
 // GetProfile obtiene la información del usuario autenticado
-func GetProfile(c *fiber.Ctx, app *app.App) error {
+func (me *AuthHandler) GetProfile(c *fiber.Ctx) error {
 	// Obtener los claims del token JWT
 	tokenUser := c.Locals("user").(jwt.MapClaims)
 	userID := tokenUser["user_id"].(string)
 
 	user := &models.User{}
-	err := user.GetProfile(app.DB.Primary, userID)
+	err := user.GetProfile(me.db, userID)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
