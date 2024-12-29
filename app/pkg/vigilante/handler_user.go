@@ -1,11 +1,9 @@
-// api/handlers/user.go
-package handlers
+package vigilante
 
 import (
 	"errors"
 	"fmt"
 
-	"milonga/api/models"
 	"milonga/internal/app"
 
 	"github.com/gofiber/fiber/v2"
@@ -28,7 +26,7 @@ func NewUserHandler(app *app.App, db *gorm.DB) *UserHandler {
 
 // GetAllUsers obtiene todos los usuarios
 func (me *UserHandler) GetAllUsers(c *fiber.Ctx) error {
-	var users []models.User
+	var users []User
 	result := me.db.Find(&users)
 	if result.Error != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
@@ -57,7 +55,7 @@ func (me *UserHandler) GetAllUsers(c *fiber.Ctx) error {
 // GetUser obtiene un usuario por ID
 func (me *UserHandler) GetUser(c *fiber.Ctx) error {
 	id := c.Params("id")
-	var user models.User
+	var user User
 
 	result := me.db.First(&user, "id = ?", id)
 	if result.Error != nil {
@@ -87,7 +85,7 @@ func (me *UserHandler) GetUser(c *fiber.Ctx) error {
 func (me *UserHandler) SearchUser(c *fiber.Ctx) error {
 	email := c.Query("email")
 	username := c.Query("username")
-	var user models.User
+	var user User
 
 	if email == "" && username == "" {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
@@ -154,7 +152,7 @@ func (me *UserHandler) CreateUser(c *fiber.Ctx) error {
 	}
 
 	// Verificar si ya existe un usuario con ese email o username
-	var existingUser models.User
+	var existingUser User
 	if result := me.db.Where("email = ? OR username = ?", input.Email, input.Username).First(&existingUser); result.Error == nil {
 		return c.Status(fiber.StatusConflict).JSON(fiber.Map{
 			"message": "User with this email or username already exists",
@@ -169,7 +167,7 @@ func (me *UserHandler) CreateUser(c *fiber.Ctx) error {
 		})
 	}
 
-	user_role, err := models.NewUserRole(input.Role)
+	user_role, err := NewUserRole(input.Role)
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 			"message": err,
@@ -177,7 +175,7 @@ func (me *UserHandler) CreateUser(c *fiber.Ctx) error {
 	}
 
 	// Crear el nuevo usuario
-	user := &models.User{
+	user := &User{
 		Username: input.Username,
 		Email:    input.Email,
 		Password: string(hashedPassword),
@@ -223,7 +221,7 @@ func (me *UserHandler) UpdateUser(c *fiber.Ctx) error {
 		})
 	}
 
-	var user models.User
+	var user User
 	result := me.db.First(&user, "id = ?", id)
 	if result.Error != nil {
 		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
@@ -252,7 +250,7 @@ func (me *UserHandler) UpdateUser(c *fiber.Ctx) error {
 		updates["email"] = input.Email
 	}
 
-	user_role, err := models.NewUserRole(input.Role)
+	user_role, err := NewUserRole(input.Role)
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 			"message": err,
@@ -307,13 +305,13 @@ func (me *UserHandler) DeleteUser(c *fiber.Ctx) error {
 
 	token_role := fmt.Sprintf("%v", tokenUser["role"])
 
-	if models.IsAdmin(token_role) {
+	if IsAdmin(token_role) {
 		return c.Status(fiber.StatusForbidden).JSON(fiber.Map{
 			"message": "Not authorized to delete users",
 		})
 	}
 
-	var user models.User
+	var user User
 	result := me.db.First(&user, "id = ?", id)
 	if result.Error != nil {
 		if errors.Is(result.Error, gorm.ErrRecordNotFound) {

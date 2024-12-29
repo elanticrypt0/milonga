@@ -1,8 +1,7 @@
-package middleware
+package vigilante
 
 import (
 	"fmt"
-	"milonga/api/models"
 	"milonga/internal/app"
 	"strings"
 
@@ -10,20 +9,20 @@ import (
 	"github.com/golang-jwt/jwt/v5"
 )
 
-type UserAuthMiddleware struct {
+type VigilanteMiddleware struct {
 	app       *app.App
 	jwtSecret string
 }
 
-func NewUserAuthMiddelware(app *app.App) *UserAuthMiddleware {
-	return &UserAuthMiddleware{
+func NewVigilanteMiddelware(app *app.App) *VigilanteMiddleware {
+	return &VigilanteMiddleware{
 		app:       app,
 		jwtSecret: app.Config.JWTSecret,
 	}
 }
 
 // ValidateToken es una función auxiliar que valida el token y retorna los claims
-func (me *UserAuthMiddleware) ValidateToken(c *fiber.Ctx) (jwt.MapClaims, error) {
+func (me *VigilanteMiddleware) ValidateToken(c *fiber.Ctx) (jwt.MapClaims, error) {
 	authHeader := c.Get("Authorization")
 
 	if authHeader == "" {
@@ -45,7 +44,7 @@ func (me *UserAuthMiddleware) ValidateToken(c *fiber.Ctx) (jwt.MapClaims, error)
 }
 
 // Protected verifica que el token sea válido
-func (me *UserAuthMiddleware) IsLogged() fiber.Handler {
+func (me *VigilanteMiddleware) IsLogged() fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		claims, err := me.ValidateToken(c)
 		if err != nil {
@@ -60,7 +59,7 @@ func (me *UserAuthMiddleware) IsLogged() fiber.Handler {
 }
 
 // RequireRole verifica que el usuario tenga un rol específico
-func (me *UserAuthMiddleware) RequireRole(allowedRoles ...string) fiber.Handler {
+func (me *VigilanteMiddleware) RequireRole(allowedRoles ...string) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		claims := c.Locals("user").(jwt.MapClaims)
 		userRole := fmt.Sprintf("%v", claims["role"])
@@ -79,10 +78,11 @@ func (me *UserAuthMiddleware) RequireRole(allowedRoles ...string) fiber.Handler 
 }
 
 // NotUser verifica que el usuario no tenga rol de usuario
-func (me *UserAuthMiddleware) NotUser() fiber.Handler {
+func (me *VigilanteMiddleware) NotUser() fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		claims := c.Locals("user").(jwt.MapClaims)
-		if models.IsUser(fmt.Sprintf("%v", claims["role"])) {
+
+		if IsUser(fmt.Sprintf("%v", claims["role"])) {
 			return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
 				"message": "unauthorized",
 			})

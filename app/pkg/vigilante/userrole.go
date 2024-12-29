@@ -1,4 +1,4 @@
-package models
+package vigilante
 
 import (
 	"database/sql/driver"
@@ -125,9 +125,5 @@ func IsAdmin(user_role string) bool {
 
 func IsUser(user_role string) bool {
 
-	if !IsHigherRole(user_role, "user") {
-		return true
-	} else {
-		return false
-	}
+	return !IsHigherRole(user_role, "user")
 }

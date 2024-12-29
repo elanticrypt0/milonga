@@ -1,4 +1,4 @@
-package models
+package vigilante
 
 import (
 	"database/sql/driver"

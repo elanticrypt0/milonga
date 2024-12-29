@@ -1,9 +1,9 @@
 package src
 
 import (
-	"milonga/api/models"
 	"milonga/api/routes"
 	"milonga/internal/app"
+	"milonga/pkg/vigilante"
 )
 
 func ApiSetup(app *app.App) {
@@ -12,9 +12,9 @@ func ApiSetup(app *app.App) {
 	app.DB.Connect("local")
 	app.DB.SetPrimary("local")
 
-	app.DB.Primary.AutoMigrate(&models.User{})
+	app.DB.Primary.AutoMigrate(&vigilante.User{})
 	// remove in production
-	models.CreateDefaultAdmin(app.DB.Primary, app)
+	vigilante.CreateDefaultAdmin(app.DB.Primary, app)
 
 	routes.RoutesSetup(app)
 

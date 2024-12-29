@@ -2,12 +2,13 @@ package routes
 
 import (
 	"milonga/internal/app"
+	"milonga/pkg/vigilante"
 )
 
 func RoutesSetup(app *app.App) {
 
-	usersRoutes(app)
-	authRoutes(app)
+	vigilante.ActivateRoutes(app)
+
 	protectedRoutes(app)
 	examplesRoutes(app)
 	staticRoutes(app)

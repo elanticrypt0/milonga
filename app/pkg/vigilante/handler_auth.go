@@ -1,13 +1,10 @@
-package handlers
+package vigilante
 
 import (
-	"time"
-
 	"errors"
 
 	"gorm.io/gorm"
 
-	"milonga/api/models"
 	"milonga/internal/app"
 
 	"github.com/gofiber/fiber/v2"
@@ -55,7 +52,7 @@ func (me *AuthHandler) Register(c *fiber.Ctx) error {
 		})
 	}
 
-	user := &models.User{
+	user := &User{
 		Username: input.Username,
 		Email:    input.Email,
 		Password: string(hashedPassword),
@@ -87,8 +84,8 @@ func (me *AuthHandler) Login(c *fiber.Ctx) error {
 		})
 	}
 
-	var user models.User
-	result := me.db.Where("email = ? AND status = ?", input.Email, models.UserStatusEnabled).First(&user)
+	var user User
+	result := me.db.Where("email = ? AND status = ?", input.Email, UserStatusEnabled).First(&user)
 	if result.Error != nil {
 		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
 			"message": "Invalid credentials",
@@ -103,15 +100,8 @@ func (me *AuthHandler) Login(c *fiber.Ctx) error {
 		})
 	}
 
-	// Create token
-	token := jwt.New(jwt.SigningMethodHS256)
-	claims := token.Claims.(jwt.MapClaims)
-	claims["user_id"] = user.ID
-	claims["email"] = user.Email
-	claims["role"] = user.Role
-	claims["exp"] = time.Now().Add(time.Hour * 72).Unix()
+	t, err := CreateNewToken(user.ID, user.Email, string(user.Role), me.app.Config.JWTSecret)
 
-	t, err := token.SignedString([]byte(me.app.Config.JWTSecret))
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 			"message": "Could not login",
@@ -134,7 +124,7 @@ func (me *AuthHandler) GetProfile(c *fiber.Ctx) error {
 	tokenUser := c.Locals("user").(jwt.MapClaims)
 	userID := tokenUser["user_id"].(string)
 
-	user := &models.User{}
+	user := &User{}
 	err := user.GetProfile(me.db, userID)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
