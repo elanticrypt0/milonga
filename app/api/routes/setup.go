@@ -24,7 +24,7 @@ func staticRoutes(app *app.App) {
 	app.Server.Static("/", "./web")
 }
 
-// get /health
+// get /health and /ping
 func HealthRoutes(app *app.App) {
 
 	services := []healthcheck.CriticalService{

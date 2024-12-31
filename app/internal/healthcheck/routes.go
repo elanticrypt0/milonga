@@ -13,10 +13,8 @@ func ActivateRoutes(app *app.App, services []CriticalService, dbs2check []*gorm.
 	healtchecker := NewHealthCheck(app, services, dbs2check)
 	app.Server.Get("/health", healtchecker.Check)
 
-	app.Server.Get("ping", func(c *fiber.Ctx) error {
-		return c.Status(fiber.StatusOK).JSON(fiber.Map{
-			"status": "ok",
-		})
+	app.Server.Get("/ping", func(c *fiber.Ctx) error {
+		return c.Status(fiber.StatusOK).SendString("pong")
 	})
 
 }
