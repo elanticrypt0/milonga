@@ -13,11 +13,12 @@ func Setup() {
 	PrintBanner("Milonga CLI", "0.1.46")
 }
 
-func MigrateVigilante(app *app.App, db *gorm.DB) {
+func VigilanteMigrate(app *app.App, db *gorm.DB) {
 	db.AutoMigrate(&vigilante.User{})
-	// remove in production
-	vigilante.CreateDefaultAdmin(db, app)
+}
 
+func VigilanteAddAdmin(app *app.App, db *gorm.DB) {
+	vigilante.CreateDefaultAdmin(db, app)
 }
 
 func Migrate(app *app.App, db *gorm.DB) {
