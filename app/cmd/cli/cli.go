@@ -2,17 +2,30 @@ package cli
 
 import (
 	"fmt"
+	"milonga/database/migrations"
 	"milonga/internal/app"
+	"milonga/pkg/vigilante"
+
+	"gorm.io/gorm"
 )
 
 func Setup() {
 	PrintBanner("Milonga CLI", "0.1.46")
 }
 
-func Migrate(app *app.App) {
-	fmt.Println("Running database migration")
+func MigrateVigilante(app *app.App, db *gorm.DB) {
+	db.AutoMigrate(&vigilante.User{})
+	// remove in production
+	vigilante.CreateDefaultAdmin(db, app)
+
 }
 
-func Seed(app *app.App) {
-	fmt.Println("Seeding the database")
+func Migrate(app *app.App, db *gorm.DB) {
+	// App migrations
+	migrations.AutoMigrate(db)
+}
+
+func Seed(db *gorm.DB) {
+	fmt.Println("Seeding database")
+	fmt.Println("Seeding database... done")
 }
