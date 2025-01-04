@@ -10,16 +10,18 @@ type UserStatus string
 
 // Constantes para los posibles estados del usuario
 const (
-	UserStatusEnabled  UserStatus = "active"
-	UserStatusDisabled UserStatus = "innactive"
-	UserStatusPending  UserStatus = "pending"
-	UserStatusBlocked  UserStatus = "blocked"
+	UserStatusEnabled   UserStatus = "active"
+	UserStatusDisabled  UserStatus = "innactive"
+	UserStatusPending   UserStatus = "pending"
+	UserStatusBlocked   UserStatus = "blocked"
+	UserSuspendedStatus UserStatus = "suspended"
+	UserDeletedStatus   UserStatus = "deleted"
 )
 
 // Validación de estados válidos
 func (s UserStatus) IsValid() bool {
 	switch s {
-	case UserStatusEnabled, UserStatusDisabled, UserStatusPending, UserStatusBlocked:
+	case UserStatusEnabled, UserStatusDisabled, UserStatusPending, UserStatusBlocked, UserSuspendedStatus, UserDeletedStatus:
 		return true
 	}
 	return false

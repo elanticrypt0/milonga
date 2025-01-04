@@ -14,7 +14,7 @@ type User struct {
 	ID       uuid.UUID  `gorm:"type:uuid;primary_key;"`
 	Email    string     `gorm:"unique;not null"`
 	Username string     `gorm:"unique;not null"`
-	Password string     `gorm:"not null"`
+	Password string     `gorm:"type:text;not null"`
 	Role     UserRole   `gorm:"type:varchar(20);default:'user'"`
 	Status   UserStatus `gorm:"type:varchar(20);default:'active'"`
 	gorm.Model
