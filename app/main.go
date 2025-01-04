@@ -5,6 +5,7 @@ import (
 	"log"
 	src "milonga/api"
 	"milonga/internal/app"
+	"milonga/internal/utils"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
@@ -14,12 +15,7 @@ import (
 
 func main() {
 
-	// read env config
-	// config := app.LoadConfig("./config/app_config.toml")
-
-	app := app.New("./config/app_config.toml")
-
-	// Create a new engineRender to render HTML
+	app := app.New(utils.GetAppRootPath() + "/config/app_config.toml")
 
 	app.Server = fiber.New(fiber.Config{
 		Prefork:           false,
