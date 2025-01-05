@@ -1,0 +1,21 @@
+name: Security Scan
+
+on:
+  push:
+    branches: [ "master" ]
+  schedule:
+    - cron: '0 0 * * *'  # Diariamente
+
+jobs:
+  security:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Run Gosec Security Scanner
+      uses: securego/gosec@master
+      with:
+        args: ./...
+        
+    - name: Run govulncheck
+      uses: golang/govulncheck-action@v1
