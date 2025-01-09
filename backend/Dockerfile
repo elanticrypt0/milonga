@@ -16,7 +16,7 @@ RUN if [ ! -f go.mod ]; then \
     fi
 
 # Exponer el puerto que usará tu aplicación
-EXPOSE 8920
+EXPOSE 8921
 
 # Usar air para hot-reload
 CMD ["air"]
