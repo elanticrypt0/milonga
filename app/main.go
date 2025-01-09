@@ -4,8 +4,10 @@ import (
 	"fmt"
 	"log"
 	src "milonga/api"
+	"milonga/cmd/cli"
 	"milonga/internal/app"
 	"milonga/internal/utils"
+	"os"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
@@ -14,7 +16,13 @@ import (
 )
 
 func main() {
+	// If there are command-line arguments, run in CLI mode
+	if len(os.Args) > 1 {
+		cli.Run()
+		return
+	}
 
+	// Otherwise, run in server mode
 	app := app.New(utils.GetAppRootPath() + "/config/app_config.toml")
 
 	app.Server = fiber.New(fiber.Config{
