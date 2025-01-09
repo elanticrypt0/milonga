@@ -1,7 +1,7 @@
 services:
   api:
     build:
-      context: .
+      context: ./app
       dockerfile: Dockerfile
     ports:
       - "$APP_PORT:8920"
