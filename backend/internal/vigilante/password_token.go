@@ -28,8 +28,6 @@ type PasswordToken struct {
 const (
 	DefaultTokenValidity = 48 * time.Hour
 	DefaultTokenLength   = 6
-	// Clave de encriptación - En producción, esto debería estar en variables de entorno
-	encryptionKey = "your-32-byte-key-here-32-bytes-!!!" // 32 bytes para AES-256
 )
 
 func NewPasswordToken() *PasswordToken {
@@ -180,6 +178,7 @@ func (me *PasswordToken) generateToken() string {
 
 // Función para encriptar el token usando AES-256-GCM
 func (me *PasswordToken) encryptToken(token string) (string, error) {
+	encryptionKey, _ := GetPasswordTokenEncryptionKey()
 	block, err := aes.NewCipher([]byte(encryptionKey))
 	if err != nil {
 		return "", err
@@ -211,6 +210,8 @@ func (me *PasswordToken) _decryptToken(encryptedToken string) (string, error) {
 	if err != nil {
 		return "", err
 	}
+
+	encryptionKey, _ := GetPasswordTokenEncryptionKey()
 
 	block, err := aes.NewCipher([]byte(encryptionKey))
 	if err != nil {

@@ -3,7 +3,7 @@ package src
 import (
 	"milonga/api/routes"
 	"milonga/internal/app"
-	"milonga/pkg/vigilante"
+	"milonga/internal/vigilante"
 )
 
 func ApiSetup(app *app.App) {

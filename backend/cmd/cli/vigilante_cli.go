@@ -2,7 +2,7 @@ package cli
 
 import (
 	"milonga/internal/app"
-	"milonga/pkg/vigilante"
+	"milonga/internal/vigilante"
 
 	"gorm.io/gorm"
 )

@@ -3,7 +3,7 @@ package routes
 import (
 	"milonga/internal/app"
 	"milonga/internal/healthcheck"
-	"milonga/pkg/vigilante"
+	"milonga/internal/vigilante"
 
 	"gorm.io/gorm"
 )

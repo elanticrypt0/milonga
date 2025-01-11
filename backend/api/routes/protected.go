@@ -3,7 +3,7 @@ package routes
 import (
 	"milonga/api/handlers"
 	"milonga/internal/app"
-	"milonga/pkg/vigilante"
+	"milonga/internal/vigilante"
 
 	"github.com/gofiber/fiber/v2"
 )

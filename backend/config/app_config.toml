@@ -7,4 +7,8 @@ APP_LOG_PATH="milonga.log"
 
 DB_CONFIG_PATH="/config/db_config.toml"
 
-JWT_SECRET="jwt-deeper-secret"
+JWT_SECRET="jwt-deepest-secret"
+
+# Password token encryption key
+# 32 bytes para AES-256
+PASSTOKEN_ENCRYPTIONKEY = "your-32-byte-key-here-32-bytes-!!!"
