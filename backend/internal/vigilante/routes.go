@@ -42,7 +42,7 @@ func usersRoutes(app *app.App, router fiber.Router) {
 
 	// add VIPGUEST
 	// User with password token
-	users.Post("/new/guest", middleware.RequireRole("admin"), handler.CreateVIPGuest)
+	users.Post("/new/guest", middleware.RequireRole("admin"), handler.CreateAccess2TokenLogin)
 
 }
 

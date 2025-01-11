@@ -108,7 +108,7 @@ func (me *AuthHandler) Login(c *fiber.Ctx) error {
 		})
 	}
 
-	t, err := CreateNewToken(user.ID, user.Email, string(user.Role), me.app.Config.JWTSecret)
+	t, err := CreateNewJWToken(user.ID, user.Email, string(user.Role), me.app.Config.JWTSecret)
 
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
@@ -147,16 +147,16 @@ func (me *AuthHandler) LoginByPasswordToken(c *fiber.Ctx) error {
 
 	err := passToken.CheckToken(user.ID, input.PasswordToken, me.db)
 	if err != nil {
-
 		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
-			// "message": "Invalid credentials - token",
-			"message": fmt.Sprintf("%s", err),
+			"message": "Invalid credentials",
 		})
 	}
 
-	t, err := CreateNewToken(user.ID, user.Email, string(user.Role), me.app.Config.JWTSecret)
+	// jwt
+	t, err := CreateNewJWToken(user.ID, user.Email, string(user.Role), me.app.Config.JWTSecret)
 
 	if err != nil {
+
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 			"message": "Could not login",
 		})
@@ -199,7 +199,7 @@ func (me *AuthHandler) LoginByPasswordTokenWithLink(c *fiber.Ctx) error {
 		})
 	}
 
-	t, err := CreateNewToken(user.ID, user.Email, string(user.Role), me.app.Config.JWTSecret)
+	t, err := CreateNewJWToken(user.ID, user.Email, string(user.Role), me.app.Config.JWTSecret)
 
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{

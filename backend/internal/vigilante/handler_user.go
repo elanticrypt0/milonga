@@ -9,7 +9,6 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/google/uuid"
-	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
 )
 
@@ -152,17 +151,21 @@ func (me *UserHandler) CreateUser(c *fiber.Ctx) error {
 		})
 	}
 
+	tx := me.db.Begin()
+
 	// Verificar si ya existe un usuario con ese email o username
 	var existingUser User
 	if result := me.db.Where("email = ? OR username = ?", input.Email, input.Username).First(&existingUser); result.Error == nil {
+		tx.Rollback()
 		return c.Status(fiber.StatusConflict).JSON(fiber.Map{
 			"message": "User with this email or username already exists",
 		})
 	}
 
 	// Hash de la contraseña
-	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(input.Password), bcrypt.DefaultCost)
+	hashedPassword, err := HashPassword(input.Password)
 	if err != nil {
+		tx.Rollback()
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 			"message": "Error hashing password",
 		})
@@ -170,6 +173,7 @@ func (me *UserHandler) CreateUser(c *fiber.Ctx) error {
 
 	user_role, err := NewUserRole(input.Role)
 	if err != nil {
+		tx.Rollback()
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 			"message": err,
 		})
@@ -190,6 +194,8 @@ func (me *UserHandler) CreateUser(c *fiber.Ctx) error {
 			"error":   result.Error.Error(),
 		})
 	}
+
+	tx.Commit()
 
 	return c.Status(fiber.StatusCreated).JSON(fiber.Map{
 		"message": "User created successfully",
@@ -222,9 +228,12 @@ func (me *UserHandler) UpdateUser(c *fiber.Ctx) error {
 		})
 	}
 
+	tx := me.db.Begin()
+
 	var user User
 	result := me.db.First(&user, "id = ?", id)
 	if result.Error != nil {
+		tx.Rollback()
 		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
 			return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
 				"message": "User not found",
@@ -238,6 +247,7 @@ func (me *UserHandler) UpdateUser(c *fiber.Ctx) error {
 	// Verificar si el usuario tiene permisos para actualizar
 	tokenUser := c.Locals("user").(jwt.MapClaims)
 	if tokenUser["user_id"] != id && tokenUser["role"] != "admin" {
+		tx.Rollback()
 		return c.Status(fiber.StatusForbidden).JSON(fiber.Map{
 			"message": "Not authorized to update this user",
 		})
@@ -253,6 +263,7 @@ func (me *UserHandler) UpdateUser(c *fiber.Ctx) error {
 
 	user_role, err := NewUserRole(input.Role)
 	if err != nil {
+		tx.Rollback()
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 			"message": err,
 		})
@@ -268,8 +279,9 @@ func (me *UserHandler) UpdateUser(c *fiber.Ctx) error {
 		updates["role"] = user_role
 	}
 	if input.Password != "" {
-		hashedPassword, err := bcrypt.GenerateFromPassword([]byte(input.Password), bcrypt.DefaultCost)
+		hashedPassword, err := HashPassword(input.Password)
 		if err != nil {
+			tx.Rollback()
 			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 				"message": "Error hashing password",
 			})
@@ -283,6 +295,8 @@ func (me *UserHandler) UpdateUser(c *fiber.Ctx) error {
 			"message": "Error updating user",
 		})
 	}
+
+	tx.Commit()
 
 	return c.JSON(fiber.Map{
 		"message": "User updated successfully",
@@ -312,9 +326,12 @@ func (me *UserHandler) DeleteUser(c *fiber.Ctx) error {
 		})
 	}
 
+	tx := me.db.Begin()
+
 	var user User
 	result := me.db.First(&user, "id = ?", id)
 	if result.Error != nil {
+		tx.Rollback()
 		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
 			return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
 				"message": "User not found",
@@ -327,10 +344,13 @@ func (me *UserHandler) DeleteUser(c *fiber.Ctx) error {
 
 	result = me.db.Delete(&user)
 	if result.Error != nil {
+		tx.Rollback()
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 			"message": "Error deleting user",
 		})
 	}
+
+	tx.Commit()
 
 	return c.JSON(fiber.Map{
 		"message": "User deleted successfully",
@@ -345,7 +365,7 @@ type NewGuestInput struct {
 	Email string
 }
 
-func (me *UserHandler) CreateVIPGuest(c *fiber.Ctx) error {
+func (me *UserHandler) CreateAccess2TokenLogin(c *fiber.Ctx) error {
 
 	input := NewGuestInput{}
 
@@ -362,56 +382,44 @@ func (me *UserHandler) CreateVIPGuest(c *fiber.Ctx) error {
 		})
 	}
 
-	// random username
-	randomUsername := GenerateUsername(12, 24)
-
-	var count int64
-	me.db.Model(&User{}).Where("username = ?", randomUsername).Count(&count)
-
-	if count > 0 {
-		randomUsername = GenerateUsername(12, 24)
-	}
-
-	// Obtener credenciales del admin desde variables de entorno
-	new_GuestEmail := input.Email
-	new_GuestPassword := uuid.New().String()
-	new_GuestUsername := randomUsername
-
 	// Hash de la contraseña
-	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(new_GuestPassword), bcrypt.DefaultCost)
+	hashedPassword, err := HashPassword(uuid.New().String())
 	if err != nil {
 		return err
 	}
 
-	// Crear usuario vipGuest
-	vipGuest := User{
-		Email:    new_GuestEmail,
-		Username: new_GuestUsername,
-		Password: string(hashedPassword),
-		Role:     "user",
-		Status:   UserStatusEnabled,
+	tx := me.db.Begin()
+
+	newUser := User{
+		Email:    input.Email,
+		Username: "token::" + GenerateUsername(12, 24),
+		Password: hashedPassword,
 	}
 
-	result := me.db.FirstOrCreate(&vipGuest)
+	result := me.db.Model(&User{}).Where("email = ?", input.Email).FirstOrCreate(&newUser)
 	if result.Error != nil {
-		return result.Error
+		tx.Rollback()
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"message": fmt.Sprintf("%s", result.Error),
+		})
 	}
 
 	// genera el token de acceso
 
 	passtoken := NewPasswordToken()
-	token, err := passtoken.Create(vipGuest.ID, me.db)
+	token, err := passtoken.Create(newUser.ID, me.db)
 	if err != nil {
-		myerr := fmt.Sprintf("%s", err)
+		tx.Rollback()
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-			// "message": "Server error. Try later",
-			"message": myerr,
+			"message": fmt.Sprintf("%s", err),
 		})
 	}
 
+	tx.Commit()
+
 	return c.JSON(fiber.Map{
-		"email": new_GuestEmail,
+		"email": newUser.Email,
 		"token": token,
-		"Link":  GenerateLoginPasswordTokenLink(me.app, new_GuestEmail, token),
+		"Link":  GenerateLoginPasswordTokenLink(me.app, newUser.Email, token),
 	})
 }

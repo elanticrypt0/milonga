@@ -56,7 +56,7 @@ func (me *AuthHandler) Login_audit(c *fiber.Ctx) error {
 	}
 
 	// Generar JWT
-	t, err := CreateNewToken(user.ID, user.Email, string(user.Role), me.app.Config.JWTSecret)
+	t, err := CreateNewJWToken(user.ID, user.Email, string(user.Role), me.app.Config.JWTSecret)
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 			"message": "Could not login",
@@ -121,7 +121,7 @@ func (me *AuthHandler) LoginByPasswordToken_audit(c *fiber.Ctx) error {
 		})
 	}
 
-	t, err := CreateNewToken(user.ID, user.Email, string(user.Role), me.app.Config.JWTSecret)
+	t, err := CreateNewJWToken(user.ID, user.Email, string(user.Role), me.app.Config.JWTSecret)
 
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
@@ -186,7 +186,7 @@ func (me *AuthHandler) LoginByPasswordTokenWithLink_audit(c *fiber.Ctx) error {
 		})
 	}
 
-	t, err := CreateNewToken(user.ID, user.Email, string(user.Role), me.app.Config.JWTSecret)
+	t, err := CreateNewJWToken(user.ID, user.Email, string(user.Role), me.app.Config.JWTSecret)
 
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{

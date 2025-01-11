@@ -10,7 +10,7 @@ import (
 
 const TOKEN_LIFETIME = 24
 
-func CreateNewToken(userID uuid.UUID, email, role, jwt_secret string) (string, error) {
+func CreateNewJWToken(userID uuid.UUID, email, role, jwt_secret string) (string, error) {
 
 	token := jwt.New(jwt.SigningMethodHS256)
 	claims := token.Claims.(jwt.MapClaims)
