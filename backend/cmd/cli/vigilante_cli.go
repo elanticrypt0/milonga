@@ -1,14 +1,37 @@
 package cli
 
 import (
+	"log"
 	"milonga/internal/app"
 	"milonga/internal/vigilante"
 
 	"gorm.io/gorm"
 )
 
-func VigilanteMigrate(app *app.App, db *gorm.DB) {
+func VigilanteMigrate(db *gorm.DB) {
+	log.Println("Installing vigilante basic...")
 	db.AutoMigrate(&vigilante.User{})
+	log.Println("All done!")
+}
+
+func VigilanteMigrateFull(db *gorm.DB) {
+	log.Println("Installing vigilante full...")
+
+	VigilanteMigrate(db)
+	VigilanteMigrateLoginAudit(db)
+	VigilanteMigratePasswordToken(db)
+
+	log.Println("All done!")
+}
+
+func VigilanteMigratePasswordToken(db *gorm.DB) {
+	db.AutoMigrate(&vigilante.PasswordToken{})
+	log.Println("Installing vigilante password token... migrated")
+}
+
+func VigilanteMigrateLoginAudit(db *gorm.DB) {
+	db.AutoMigrate(&vigilante.LoginAudit{})
+	log.Println("Installing vigilante audit... migrated")
 }
 
 func VigilanteAddAdmin(app *app.App, db *gorm.DB) {

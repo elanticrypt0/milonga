@@ -15,19 +15,25 @@ func main() {
 	app := appSetup()
 
 	migrateCmd := flag.Bool("migrate", false, "Run database migrations")
-	migrateVigilanteCmd := flag.Bool("vigilante:install", false, "Run database migrations")
+	migrateVigilanteBasicCmd := flag.Bool("vigilante:install basic", false, "Run database migrations")
+	migrateVigilanteFullCmd := flag.Bool("vigilante:install full", false, "Run database migrations")
 	migrateVigilanteGuestCmd := flag.Bool("vigilante:guest", false, "Run database migrations")
 	seedCmd := flag.Bool("seed", false, "Run database seeds")
 
 	flag.Parse()
 
-	if !*migrateCmd && !*migrateVigilanteCmd && !*seedCmd {
+	if !*migrateCmd && !*migrateVigilanteBasicCmd && !*migrateVigilanteFullCmd && !*seedCmd {
 		fmt.Println("Uso: programa -migrate o -seed")
 		os.Exit(1)
 	}
 
-	if *migrateVigilanteCmd {
-		cli.VigilanteMigrate(app, app.DB.Primary)
+	if *migrateVigilanteBasicCmd {
+		cli.VigilanteMigrate(app.DB.Primary)
+		cli.VigilanteAddAdmin(app, app.DB.Primary)
+	}
+
+	if *migrateVigilanteFullCmd {
+		cli.VigilanteMigrateFull(app.DB.Primary)
 		cli.VigilanteAddAdmin(app, app.DB.Primary)
 	}
 

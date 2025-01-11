@@ -1,0 +1,113 @@
+---
+// src/components/LoginForm.astro
+// add .env on astro
+// PUBLIC_API_URL=http://localhost:3000/api
+---
+
+<script>
+    interface LoginResponse {
+      token: string;
+      user: {
+        id: string;
+        username: string;
+        email: string;
+      };
+    }
+    
+    class LoginForm {
+      private form: HTMLFormElement;
+      private API_URL = import.meta.env.PUBLIC_API_URL;
+    
+      constructor() {
+        this.form = document.querySelector('#loginForm') as HTMLFormElement;
+        this.setupListeners();
+      }
+    
+      private setupListeners() {
+        this.form?.addEventListener('submit', async (e) => {
+          e.preventDefault();
+          await this.handleSubmit();
+        });
+      }
+    
+      private async handleSubmit() {
+        try {
+          const formData = new FormData(this.form);
+          const email = formData.get('email') as string;
+          const password = formData.get('password') as string;
+    
+          const response = await fetch(`${this.API_URL}/auth/login`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ email, password }),
+          });
+    
+          const data: LoginResponse = await response.json();
+    
+          if (!response.ok) {
+            throw new Error(data.message || 'Error en el login');
+          }
+    
+          // Guardar el token en localStorage
+          localStorage.setItem('token', data.token);
+          localStorage.setItem('user', JSON.stringify(data.user));
+    
+          // Redirigir al dashboard o página principal
+          window.location.href = '/dashboard';
+        } catch (error) {
+          console.error('Error en el login:', error);
+          // Mostrar error al usuario
+          const errorDiv = document.querySelector('#error-message');
+          if (errorDiv) {
+            errorDiv.textContent = error instanceof Error ? error.message : 'Error en el login';
+            errorDiv.classList.remove('hidden');
+          }
+        }
+      }
+    }
+    
+    // Inicializar el formulario cuando el DOM esté listo
+    document.addEventListener('DOMContentLoaded', () => {
+      new LoginForm();
+    });
+    </script>
+    
+    <form id="loginForm" class="space-y-6 max-w-md mx-auto">
+      <div class="rounded-md shadow-sm -space-y-px">
+        <div>
+          <label for="email" class="sr-only">Email</label>
+          <input
+            id="email"
+            name="email"
+            type="email"
+            required
+            class="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
+            placeholder="Email"
+          />
+        </div>
+        <div>
+          <label for="password" class="sr-only">Contraseña</label>
+          <input
+            id="password"
+            name="password"
+            type="password"
+            required
+            class="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
+            placeholder="Contraseña"
+          />
+        </div>
+      </div>
+    
+      <div>
+        <button
+          type="submit"
+          class="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+        >
+          Iniciar sesión
+        </button>
+      </div>
+    
+      <div id="error-message" class="hidden text-red-600 text-sm mt-2"></div>
+    </form>
