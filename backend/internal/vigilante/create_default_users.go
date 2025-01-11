@@ -58,7 +58,7 @@ func CreateDefaultGuest(db *gorm.DB, app *app.App) error {
 	db.Model(&User{}).Where("username = ?", randomUsername).Count(&count)
 
 	// Obtener credenciales del admin desde variables de entorno
-	vipGuestEmail := "you@vip.guest"
+	vipGuestEmail := "guest@token.pass"
 	vipGuestPassword := uuid.New().String()
 	vipGuestUsername := randomUsername
 

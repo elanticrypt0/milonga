@@ -1,0 +1,22 @@
+meta {
+  name: create guest
+  type: http
+  seq: 3
+}
+
+post {
+  url: http://localhost:8921/api/v1/users/new/guest
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6InJvb3RAYWRtaW4uY29tIiwiZXhwIjoxNzM2NjU2NDgxLCJyb2xlIjoiYWRtaW4iLCJ1c2VyX2lkIjoiMjJjZmMzM2EtZjQwZS00YjEyLWEzNWYtYjA3YmZlZWZkNmRhIn0.bZVwZMwcZmVFj32eskwPuIe4X9Z7BJfDPUSkkcw1F_s
+}
+
+body:json {
+  {
+    "email":"new@token.pass"
+  }
+  
+}
