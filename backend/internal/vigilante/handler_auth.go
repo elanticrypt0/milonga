@@ -99,7 +99,7 @@ func (me *AuthHandler) Login(c *fiber.Ctx) error {
 	}
 
 	// Verify password
-	err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(input.Password))
+	err := ComparePassword(user.Password, input.Password)
 	if err != nil {
 		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
 			"message": "Invalid credentials",
