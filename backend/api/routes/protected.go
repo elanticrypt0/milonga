@@ -6,7 +6,7 @@ import (
 	"milonga/internal/vigilante"
 )
 
-func protectedRoutes(app *app.App) {
+func ProtectedRoutes(app *app.App) {
 
 	middleware := vigilante.NewVigilanteMiddelware(app)
 	protectedHandler := handlers.NewProtectedHander(app, app.DB.Primary)
