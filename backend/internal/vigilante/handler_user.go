@@ -412,5 +412,6 @@ func (me *UserHandler) CreateVIPGuest(c *fiber.Ctx) error {
 	return c.JSON(fiber.Map{
 		"email": new_GuestEmail,
 		"token": token,
+		"Link":  GenerateLoginPasswordTokenLink(me.app, new_GuestEmail, token),
 	})
 }

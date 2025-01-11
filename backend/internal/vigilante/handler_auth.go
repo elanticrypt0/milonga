@@ -58,10 +58,12 @@ func (me *AuthHandler) Register(c *fiber.Ctx) error {
 		})
 	}
 
+	hashedPasswordStr := string(hashedPassword)
+
 	user := &User{
 		Username: input.Username,
 		Email:    input.Email,
-		Password: string(hashedPassword),
+		Password: hashedPasswordStr,
 	}
 
 	result := me.db.Create(&user)
@@ -144,6 +146,51 @@ func (me *AuthHandler) LoginByPasswordToken(c *fiber.Ctx) error {
 	passToken := NewPasswordToken()
 
 	err := passToken.CheckToken(user.ID, input.PasswordToken, me.db)
+	if err != nil {
+
+		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
+			// "message": "Invalid credentials - token",
+			"message": fmt.Sprintf("%s", err),
+		})
+	}
+
+	t, err := CreateNewToken(user.ID, user.Email, string(user.Role), me.app.Config.JWTSecret)
+
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"message": "Could not login",
+		})
+	}
+
+	return c.JSON(fiber.Map{
+		"token": t,
+		"user": fiber.Map{
+			"id":       user.ID,
+			"username": user.Username,
+			"email":    user.Email,
+		},
+	})
+}
+
+func (me *AuthHandler) LoginByPasswordTokenWithLink(c *fiber.Ctx) error {
+	input, err := ParseLogingByTokenInput(c)
+	if err != nil {
+		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
+			"message": fmt.Sprintf("%s", err),
+		})
+	}
+
+	var user User
+	result := me.db.Where("email = ? AND status = ?", input.Email, UserStatusEnabled).First(&user)
+	if result.Error != nil {
+		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
+			"message": "Invalid credentials",
+		})
+	}
+
+	passToken := NewPasswordToken()
+
+	err = passToken.CheckToken(user.ID, input.PasswordToken, me.db)
 	if err != nil {
 
 		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{

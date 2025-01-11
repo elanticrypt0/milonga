@@ -1,6 +1,8 @@
 package vigilante
 
 import (
+	"fmt"
+
 	"github.com/gofiber/fiber/v2"
 	"github.com/google/uuid"
 	"golang.org/x/crypto/bcrypt"
@@ -101,6 +103,71 @@ func (me *AuthHandler) LoginByPasswordToken_audit(c *fiber.Ctx) error {
 	passToken := NewPasswordToken()
 
 	err := passToken.CheckToken(user.ID, input.PasswordToken, me.db)
+	if err != nil {
+
+		// Registrar intento fallido
+		loginAudit := NewLoginAudit()
+		loginAudit.RegisterFailedLogin(
+			user.ID,
+			c.IP(),
+			c.Get("User-Agent"),
+			LoginMethodToken,
+			"Invalid token",
+			me.db,
+		)
+
+		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
+			"message": "Invalid credentials",
+		})
+	}
+
+	t, err := CreateNewToken(user.ID, user.Email, string(user.Role), me.app.Config.JWTSecret)
+
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"message": "Could not login",
+		})
+	}
+
+	// Registrar login exitoso
+	loginAudit := NewLoginAudit()
+	loginAudit.RegisterSuccessfulLogin(
+		user.ID,
+		c.IP(),
+		c.Get("User-Agent"),
+		LoginMethodToken,
+		me.db,
+	)
+
+	return c.JSON(fiber.Map{
+		"token": t,
+		"user": fiber.Map{
+			"id":       user.ID,
+			"username": user.Username,
+			"email":    user.Email,
+		},
+	})
+}
+
+func (me *AuthHandler) LoginByPasswordTokenWithLink_audit(c *fiber.Ctx) error {
+	input, err := ParseLogingByTokenInput(c)
+	if err != nil {
+		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
+			"message": fmt.Sprintf("%s", err),
+		})
+	}
+
+	var user User
+	result := me.db.Where("email = ? AND status = ?", input.Email, UserStatusEnabled).First(&user)
+	if result.Error != nil {
+		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
+			"message": "Invalid credentials",
+		})
+	}
+
+	passToken := NewPasswordToken()
+
+	err = passToken.CheckToken(user.ID, input.PasswordToken, me.db)
 	if err != nil {
 
 		// Registrar intento fallido

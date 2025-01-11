@@ -52,6 +52,7 @@ func authRoutes(app *app.App, router fiber.Router) {
 	handler := NewAuthHandler(app, app.DB.Primary)
 
 	auth.Post("/register", handler.Register)
+	auth.Get("/login/guest/link", handler.LoginByPasswordTokenWithLink)
 	auth.Post("/login/guest", handler.LoginByPasswordToken)
 	auth.Post("/login", handler.Login)
 
@@ -64,6 +65,7 @@ func authRoutes_audit(app *app.App, router fiber.Router) {
 	handler := NewAuthHandler(app, app.DB.Primary)
 
 	auth.Post("/register", handler.Register)
+	auth.Get("/login/guest/link", handler.LoginByPasswordTokenWithLink_audit)
 	auth.Post("/login/guest", handler.LoginByPasswordToken_audit)
 	auth.Post("/login", handler.Login_audit)
 
