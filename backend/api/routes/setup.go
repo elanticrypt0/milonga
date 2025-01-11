@@ -6,9 +6,11 @@ import (
 
 func RoutesSetup(app *app.App) {
 
-	SetupMilongaRoutes(app)
+	router := app.Server.Group("api/v1")
 
-	protectedRoutes(app)
+	SetupMilongaRoutes(app, router)
+
+	ProtectedRoutes(app)
 	examplesRoutes(app)
 	staticRoutes(app)
 

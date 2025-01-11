@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"log"
 	"milonga/database/migrations"
-	"milonga/database/seeds"
 	"milonga/internal/app"
 	"milonga/internal/vigilante"
 
@@ -22,7 +21,6 @@ func Migrate(app *app.App, db *gorm.DB) {
 
 func Seed(db *gorm.DB) {
 	fmt.Println("Seeding database")
-	seeds.SeedCountries(db)
 	fmt.Println("Seeding database... done")
 }
 
