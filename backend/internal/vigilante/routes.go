@@ -11,6 +11,13 @@ func ActivateRoutes(app *app.App) {
 
 }
 
+func ActivateRoutes_audit(app *app.App) {
+
+	usersRoutes(app)
+	authRoutes_audit(app)
+
+}
+
 func usersRoutes(app *app.App) {
 
 	middleware := NewVigilanteMiddelware(app)
@@ -45,5 +52,17 @@ func authRoutes(app *app.App) {
 	auth.Post("/register", handler.Register)
 	auth.Post("/login/guest", handler.LoginByPasswordToken)
 	auth.Post("/login", handler.Login)
+
+}
+
+func authRoutes_audit(app *app.App) {
+
+	auth := app.Server.Group("auth")
+
+	handler := NewAuthHandler(app, app.DB.Primary)
+
+	auth.Post("/register", handler.Register)
+	auth.Post("/login/guest", handler.LoginByPasswordToken_audit)
+	auth.Post("/login", handler.Login_audit)
 
 }

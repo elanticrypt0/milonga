@@ -11,6 +11,8 @@ import (
 func RoutesSetup(app *app.App) {
 
 	vigilante.ActivateRoutes(app)
+	// alternative to audit users logins
+	// vigilante.ActivateRoutes_audit()
 
 	protectedRoutes(app)
 	examplesRoutes(app)
