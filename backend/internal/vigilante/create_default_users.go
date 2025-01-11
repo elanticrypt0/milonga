@@ -5,7 +5,6 @@ import (
 	"milonga/internal/app"
 
 	"github.com/google/uuid"
-	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
 )
 
@@ -27,7 +26,7 @@ func CreateDefaultAdmin(db *gorm.DB, app *app.App) error {
 	adminUsername := default_admin.Username
 
 	// Hash de la contraseña
-	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(adminPassword), bcrypt.DefaultCost)
+	hashedPassword, err := HashPassword(adminPassword)
 	if err != nil {
 		return err
 	}
@@ -63,7 +62,7 @@ func CreateDefaultGuest(db *gorm.DB, app *app.App) error {
 	vipGuestUsername := randomUsername
 
 	// Hash de la contraseña
-	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(vipGuestPassword), bcrypt.DefaultCost)
+	hashedPassword, err := HashPassword(vipGuestPassword)
 	if err != nil {
 		return err
 	}

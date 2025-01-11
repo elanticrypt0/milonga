@@ -5,7 +5,6 @@ import (
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/google/uuid"
-	"golang.org/x/crypto/bcrypt"
 )
 
 func (me *AuthHandler) Login_audit(c *fiber.Ctx) error {
@@ -37,7 +36,7 @@ func (me *AuthHandler) Login_audit(c *fiber.Ctx) error {
 	}
 
 	// Verificar password
-	err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(input.Password))
+	err := ComparePassword(user.Password, input.Password)
 	if err != nil {
 		// Registrar intento fallido
 		loginAudit := NewLoginAudit()
