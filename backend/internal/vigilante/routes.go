@@ -22,7 +22,7 @@ func usersRoutes(app *app.App) {
 
 	middleware := NewVigilanteMiddelware(app)
 
-	users := app.Server.Group("/users", middleware.IsLogged(), middleware.NotUser())
+	users := app.Server.Group("/users", middleware.IsLogged(), middleware.IsStaff())
 
 	handler := NewUserHandler(app, app.DB.Primary)
 	auth_handler := NewAuthHandler(app, app.DB.Primary)
