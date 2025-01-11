@@ -8,6 +8,7 @@ import (
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/golang-jwt/jwt/v5"
+	"github.com/google/uuid"
 	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
 )
@@ -333,5 +334,65 @@ func (me *UserHandler) DeleteUser(c *fiber.Ctx) error {
 
 	return c.JSON(fiber.Map{
 		"message": "User deleted successfully",
+	})
+}
+
+type CreateVIPGuestInput struct {
+	Email string `json:"email" validate:"required,email"`
+}
+
+func (me *UserHandler) CreateVIPGuest(c *fiber.Ctx) error {
+
+	vipEmail := c.Params("email")
+
+	if vipEmail == "" {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"message": "No email passed",
+		})
+	}
+
+	// random username
+	randomUsername := GenerateUsername(12, 24)
+
+	var count int64
+	me.db.Model(&User{}).Where("username = ?", randomUsername).Count(&count)
+
+	if count > 0 {
+		randomUsername = GenerateUsername(12, 24)
+	}
+
+	// Obtener credenciales del admin desde variables de entorno
+	vipGuestEmail := vipEmail
+	vipGuestPassword := uuid.New().String()
+	vipGuestUsername := randomUsername
+
+	// Hash de la contraseña
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(vipGuestPassword), bcrypt.DefaultCost)
+	if err != nil {
+		return err
+	}
+
+	// Crear usuario vipGuest
+	vipGuest := User{
+		Email:    vipGuestEmail,
+		Username: vipGuestUsername,
+		Password: string(hashedPassword),
+		Role:     "user",
+		Status:   UserStatusEnabled,
+	}
+
+	result := me.db.Create(&vipGuest)
+	if result.Error != nil {
+		return result.Error
+	}
+
+	// genera el token de acceso
+
+	passtoken := NewPasswordToken()
+	passtoken.Create(vipGuest.ID, me.db)
+
+	return c.JSON(fiber.Map{
+		"email": vipGuestEmail,
+		"token": passtoken.Token,
 	})
 }

@@ -16,6 +16,7 @@ func main() {
 
 	migrateCmd := flag.Bool("migrate", false, "Run database migrations")
 	migrateVigilanteCmd := flag.Bool("vigilante:install", false, "Run database migrations")
+	migrateVigilanteGuestCmd := flag.Bool("vigilante:guest", false, "Run database migrations")
 	seedCmd := flag.Bool("seed", false, "Run database seeds")
 
 	flag.Parse()
@@ -28,6 +29,10 @@ func main() {
 	if *migrateVigilanteCmd {
 		cli.VigilanteMigrate(app, app.DB.Primary)
 		cli.VigilanteAddAdmin(app, app.DB.Primary)
+	}
+
+	if *migrateVigilanteGuestCmd {
+		cli.VigilanteAddDefaultGuest(app, app.DB.Primary)
 	}
 
 	if *migrateCmd {

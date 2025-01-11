@@ -31,6 +31,10 @@ func usersRoutes(app *app.App) {
 	users.Put("/:id", handler.UpdateUser)
 	users.Delete("/:id", middleware.RequireRole("admin"), handler.DeleteUser)
 
+	// add VIPGUEST
+	// User with password token
+	users.Post("/new/vip/:email", middleware.RequireRole("admin"), handler.CreateVIPGuest)
+
 }
 
 func authRoutes(app *app.App) {
@@ -39,6 +43,7 @@ func authRoutes(app *app.App) {
 	handler := NewAuthHandler(app, app.DB.Primary)
 
 	auth.Post("/register", handler.Register)
+	auth.Post("/login/guest", handler.LoginByPasswordToken)
 	auth.Post("/login", handler.Login)
 
 }

@@ -29,6 +29,11 @@ type LoginInput struct {
 	Password string `json:"password"`
 }
 
+type LoginByTokenInput struct {
+	Email         string `json:"email"`
+	PasswordToken string `json:"token"`
+}
+
 type RegisterInput struct {
 	Username string `json:"username"`
 	Email    string `json:"email"`
@@ -94,6 +99,50 @@ func (me *AuthHandler) Login(c *fiber.Ctx) error {
 
 	// Verify password
 	err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(input.Password))
+	if err != nil {
+		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
+			"message": "Invalid credentials",
+		})
+	}
+
+	t, err := CreateNewToken(user.ID, user.Email, string(user.Role), me.app.Config.JWTSecret)
+
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"message": "Could not login",
+		})
+	}
+
+	return c.JSON(fiber.Map{
+		"token": t,
+		"user": fiber.Map{
+			"id":       user.ID,
+			"username": user.Username,
+			"email":    user.Email,
+		},
+	})
+}
+
+func (me *AuthHandler) LoginByPasswordToken(c *fiber.Ctx) error {
+	input := new(LoginByTokenInput)
+
+	if err := c.BodyParser(input); err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"message": "Invalid input",
+		})
+	}
+
+	var user User
+	result := me.db.Where("email = ? AND status = ?", input.Email, UserStatusEnabled).First(&user)
+	if result.Error != nil {
+		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
+			"message": "Invalid credentials",
+		})
+	}
+
+	passToken := NewPasswordToken()
+
+	err := passToken.CheckToken(user.ID, input.PasswordToken, me.db)
 	if err != nil {
 		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
 			"message": "Invalid credentials",
