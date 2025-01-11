@@ -18,7 +18,7 @@ import (
 type PasswordToken struct {
 	ID        uuid.UUID `gorm:"type:uuid;primary_key;"`
 	UserID    uuid.UUID `gorm:"type:uuid;not null"`
-	Token     string    `gorm:"unique;not null"` // Almacenará el token encriptado
+	Token     string    `gorm:"unique;not null"`
 	IsUsed    bool      `gorm:"default:false"`
 	ExpiresAt time.Time `gorm:"not null"`
 	User      User      `gorm:"foreignKey:UserID"`
@@ -90,19 +90,23 @@ func (me *PasswordToken) UpdateTokenWithValidity(validity time.Duration, tx *gor
 	return plainToken, nil // Retornamos el token sin encriptar para el usuario
 }
 
-func (me *PasswordToken) RefreshToken(token string, tx *gorm.DB) (string, error) {
-	return me.RefreshTokenWithValidity(token, DefaultTokenValidity, tx)
+func (me *PasswordToken) RefreshToken(userID uuid.UUID, token string, tx *gorm.DB) (string, error) {
+	return me.RefreshTokenWithValidity(userID, token, DefaultTokenValidity, tx)
 }
 
-func (me *PasswordToken) RefreshTokenWithValidity(token string, validity time.Duration, tx *gorm.DB) (string, error) {
-	encryptedToken, err := me.encryptToken(token)
-	if err != nil {
-		return "", fmt.Errorf("error encrypting token for verification: %w", err)
+func (me *PasswordToken) RefreshTokenWithValidity(userID uuid.UUID, token string, validity time.Duration, tx *gorm.DB) (string, error) {
+	var instance PasswordToken
+	if err := tx.First(&instance, "user_id = ? and is_used=?", userID, false).Error; err != nil {
+		return "", fmt.Errorf("user's token not found")
 	}
 
-	var instance PasswordToken
-	if err := tx.First(&instance, "token = ? AND is_used = false", encryptedToken).Error; err != nil {
+	decrypted_token, err := me._decryptToken(instance.Token)
+	if err != nil {
 		return "", fmt.Errorf("token not found or already used")
+	}
+
+	if token != decrypted_token {
+		return "", fmt.Errorf("token is not valid")
 	}
 
 	if time.Now().After(instance.ExpiresAt) {
@@ -132,14 +136,14 @@ func (me *PasswordToken) RefreshTokenWithValidity(token string, validity time.Du
 		return "", fmt.Errorf("error creating new token: %w", err)
 	}
 
-	return newPlainToken, nil // Retornamos el nuevo token sin encriptar
+	return newPlainToken, nil
 }
 
 func (me *PasswordToken) CheckToken(userID uuid.UUID, token string, tx *gorm.DB) error {
 
 	var instance PasswordToken
 	if err := tx.First(&instance, "user_id = ? and is_used=?", userID, false).Error; err != nil {
-		return fmt.Errorf("user not found")
+		return fmt.Errorf("user's token not found")
 	}
 
 	decrypted_token, err := me._decryptToken(instance.Token)
