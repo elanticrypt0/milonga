@@ -2,27 +2,29 @@ package vigilante
 
 import (
 	"milonga/internal/app"
+
+	"github.com/gofiber/fiber/v2"
 )
 
-func ActivateRoutes(app *app.App) {
+func ActivateRoutes(app *app.App, router fiber.Router) {
 
-	usersRoutes(app)
-	authRoutes(app)
-
-}
-
-func ActivateRoutes_audit(app *app.App) {
-
-	usersRoutes(app)
-	authRoutes_audit(app)
+	usersRoutes(app, router)
+	authRoutes(app, router)
 
 }
 
-func usersRoutes(app *app.App) {
+func ActivateRoutes_audit(app *app.App, router fiber.Router) {
+
+	usersRoutes(app, router)
+	authRoutes_audit(app, router)
+
+}
+
+func usersRoutes(app *app.App, router fiber.Router) {
 
 	middleware := NewVigilanteMiddelware(app)
 
-	users := app.Server.Group("/users", middleware.IsLogged(), middleware.IsStaff())
+	users := router.Group("/users", middleware.IsLogged(), middleware.IsStaff())
 
 	handler := NewUserHandler(app, app.DB.Primary)
 	auth_handler := NewAuthHandler(app, app.DB.Primary)
@@ -44,8 +46,8 @@ func usersRoutes(app *app.App) {
 
 }
 
-func authRoutes(app *app.App) {
-	auth := app.Server.Group("auth")
+func authRoutes(app *app.App, router fiber.Router) {
+	auth := router.Group("auth")
 
 	handler := NewAuthHandler(app, app.DB.Primary)
 
@@ -55,9 +57,9 @@ func authRoutes(app *app.App) {
 
 }
 
-func authRoutes_audit(app *app.App) {
+func authRoutes_audit(app *app.App, router fiber.Router) {
 
-	auth := app.Server.Group("auth")
+	auth := router.Group("auth")
 
 	handler := NewAuthHandler(app, app.DB.Primary)
 

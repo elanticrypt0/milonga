@@ -5,13 +5,14 @@ import (
 	"milonga/internal/healthcheck"
 	"milonga/internal/vigilante"
 
+	"github.com/gofiber/fiber/v2"
 	"gorm.io/gorm"
 )
 
-func SetupMilongaRoutes(app *app.App) {
-	vigilante.ActivateRoutes(app)
+func SetupMilongaRoutes(app *app.App, router fiber.Router) {
+	vigilante.ActivateRoutes(app, router)
 	// alternative to audit users logins
-	// vigilante.ActivateRoutes_audit()
+	// vigilante.ActivateRoutes_audit(app,router)
 
 	HealthRoutes(app)
 
