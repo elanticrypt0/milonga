@@ -2,6 +2,7 @@ package vigilante
 
 import (
 	"errors"
+	"fmt"
 
 	"gorm.io/gorm"
 
@@ -144,8 +145,10 @@ func (me *AuthHandler) LoginByPasswordToken(c *fiber.Ctx) error {
 
 	err := passToken.CheckToken(user.ID, input.PasswordToken, me.db)
 	if err != nil {
+
 		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
-			"message": "Invalid credentials",
+			// "message": "Invalid credentials - token",
+			"message": fmt.Sprintf("%s", err),
 		})
 	}
 

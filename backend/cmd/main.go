@@ -15,14 +15,15 @@ func main() {
 	app := appSetup()
 
 	migrateCmd := flag.Bool("migrate", false, "Run database migrations")
-	migrateVigilanteBasicCmd := flag.Bool("vigilante:install basic", false, "Run database migrations")
-	migrateVigilanteFullCmd := flag.Bool("vigilante:install full", false, "Run database migrations")
-	migrateVigilanteGuestCmd := flag.Bool("vigilante:guest", false, "Run database migrations")
+	migrateVigilanteBasicCmd := flag.Bool("vigilante:install_basic", false, "Run database migrations")
+	migrateVigilanteFullCmd := flag.Bool("vigilante:install_full", false, "Run database migrations")
+	migrateVigilanteGuestCmd := flag.Bool("vigilante:make_guest", false, "Run database migrations")
+	generateVigilanteEncryptionkeyCmd := flag.Bool("vigilante:generate_key", false, "Run database migrations")
 	seedCmd := flag.Bool("seed", false, "Run database seeds")
 
 	flag.Parse()
 
-	if !*migrateCmd && !*migrateVigilanteBasicCmd && !*migrateVigilanteFullCmd && !*seedCmd {
+	if !*migrateCmd && !*migrateVigilanteBasicCmd && !*migrateVigilanteFullCmd && !*migrateVigilanteGuestCmd && !*generateVigilanteEncryptionkeyCmd && !*seedCmd {
 		fmt.Println("Uso: programa -migrate o -seed")
 		os.Exit(1)
 	}
@@ -35,10 +36,15 @@ func main() {
 	if *migrateVigilanteFullCmd {
 		cli.VigilanteMigrateFull(app.DB.Primary)
 		cli.VigilanteAddAdmin(app, app.DB.Primary)
+		cli.VigilanteAddDefaultGuest(app, app.DB.Primary)
 	}
 
 	if *migrateVigilanteGuestCmd {
 		cli.VigilanteAddDefaultGuest(app, app.DB.Primary)
+	}
+
+	if *generateVigilanteEncryptionkeyCmd {
+		cli.GenerateEncryptionKey(app)
 	}
 
 	if *migrateCmd {

@@ -77,16 +77,23 @@ func CreateDefaultGuest(db *gorm.DB, app *app.App) error {
 		Status:   UserStatusEnabled,
 	}
 
+	var vipGuest2 User
+
 	result := db.Create(&vipGuest)
 	if result.Error != nil {
 		return result.Error
 	}
 
+	db.Find(&vipGuest2, "email=?", vipGuestEmail)
+
 	// genera el token de acceso
 
 	passtoken := NewPasswordToken()
-	passtoken.Create(vipGuest.ID, db)
+	plaintoken, err := passtoken.Create(vipGuest2.ID, db)
+	if err != nil {
+		return err
+	}
 
-	log.Printf("Default vip guest user created with email: %s and password token : %q\n", vipGuestEmail, passtoken.Token)
+	log.Printf("Default guest user created with email: %s and password token : %q\n", vipGuestEmail, plaintoken)
 	return nil
 }

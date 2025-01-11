@@ -40,15 +40,15 @@ func (me *PasswordToken) BeforeCreate(tx *gorm.DB) error {
 	return nil
 }
 
-func (me *PasswordToken) Create(userID uuid.UUID, tx *gorm.DB) error {
+func (me *PasswordToken) Create(userID uuid.UUID, tx *gorm.DB) (string, error) {
 	return me.CreateWithValidity(userID, DefaultTokenValidity, tx)
 }
 
-func (me *PasswordToken) CreateWithValidity(userID uuid.UUID, validity time.Duration, tx *gorm.DB) error {
+func (me *PasswordToken) CreateWithValidity(userID uuid.UUID, validity time.Duration, tx *gorm.DB) (string, error) {
 	plainToken := me.generateToken()
 	encryptedToken, err := me.encryptToken(plainToken)
 	if err != nil {
-		return fmt.Errorf("error encrypting token: %w", err)
+		return "", fmt.Errorf("error encrypting token: %w", err)
 	}
 
 	newPassToken := &PasswordToken{
@@ -59,10 +59,10 @@ func (me *PasswordToken) CreateWithValidity(userID uuid.UUID, validity time.Dura
 
 	err = tx.Save(newPassToken).Error
 	if err != nil {
-		return fmt.Errorf("error creating password token: %w", err)
+		return "", fmt.Errorf("error creating password token: %w", err)
 	}
 
-	return nil
+	return plainToken, nil
 }
 
 func (me *PasswordToken) UpdateToken(tx *gorm.DB) (string, error) {
@@ -136,14 +136,19 @@ func (me *PasswordToken) RefreshTokenWithValidity(token string, validity time.Du
 }
 
 func (me *PasswordToken) CheckToken(userID uuid.UUID, token string, tx *gorm.DB) error {
-	encryptedToken, err := me.encryptToken(token)
-	if err != nil {
-		return fmt.Errorf("error encrypting token for verification: %w", err)
-	}
 
 	var instance PasswordToken
-	if err := tx.First(&instance, "token = ? AND is_used = false", encryptedToken).Error; err != nil {
+	if err := tx.First(&instance, "user_id = ? and is_used=?", userID, false).Error; err != nil {
+		return fmt.Errorf("user not found")
+	}
+
+	decrypted_token, err := me._decryptToken(instance.Token)
+	if err != nil {
 		return fmt.Errorf("token not found or already used")
+	}
+
+	if token != decrypted_token {
+		return fmt.Errorf("token is not valid")
 	}
 
 	if time.Now().After(instance.ExpiresAt) {
@@ -178,7 +183,10 @@ func (me *PasswordToken) generateToken() string {
 
 // Función para encriptar el token usando AES-256-GCM
 func (me *PasswordToken) encryptToken(token string) (string, error) {
-	encryptionKey, _ := GetPasswordTokenEncryptionKey()
+	encryptionKey, err := GetPasswordTokenEncryptionKey()
+	if err != nil {
+		fmt.Printf("%v\n", err)
+	}
 	block, err := aes.NewCipher([]byte(encryptionKey))
 	if err != nil {
 		return "", err

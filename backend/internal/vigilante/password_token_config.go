@@ -23,10 +23,14 @@ func LoadPassTokenConfig(filename string) (*PassTokenConfig, error) {
 		return nil, fmt.Errorf("error decoding config file: %w", err)
 	}
 
-	// Validar la longitud de la clave de encriptación
-	if len(config.EncryptionKey) != 32 {
-		return nil, fmt.Errorf("encryption key must be exactly 32 bytes long")
+	// Decodificar y validar la clave
+	key, err := DecodeEncryptionKey(config.EncryptionKey)
+	if err != nil {
+		return nil, fmt.Errorf("invalid encryption key: %w", err)
 	}
+
+	// Guardar la clave decodificada
+	config.EncryptionKey = string(key)
 
 	return &config, nil
 }
@@ -39,6 +43,5 @@ func GetPasswordTokenEncryptionKey() (string, error) {
 		return "", fmt.Errorf("failed to load password token config: %w", err)
 	}
 
-	encryptionKey := config.EncryptionKey
-	return encryptionKey, nil
+	return config.EncryptionKey, nil
 }

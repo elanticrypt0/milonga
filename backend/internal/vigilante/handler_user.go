@@ -341,11 +341,22 @@ type CreateVIPGuestInput struct {
 	Email string `json:"email" validate:"required,email"`
 }
 
+type NewGuestInput struct {
+	Email string
+}
+
 func (me *UserHandler) CreateVIPGuest(c *fiber.Ctx) error {
 
-	vipEmail := c.Params("email")
+	input := NewGuestInput{}
 
-	if vipEmail == "" {
+	err := c.BodyParser(&input)
+	if err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"message": "No email passed",
+		})
+	}
+
+	if input.Email == "" {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 			"message": "No email passed",
 		})
@@ -362,26 +373,26 @@ func (me *UserHandler) CreateVIPGuest(c *fiber.Ctx) error {
 	}
 
 	// Obtener credenciales del admin desde variables de entorno
-	vipGuestEmail := vipEmail
-	vipGuestPassword := uuid.New().String()
-	vipGuestUsername := randomUsername
+	new_GuestEmail := input.Email
+	new_GuestPassword := uuid.New().String()
+	new_GuestUsername := randomUsername
 
 	// Hash de la contraseña
-	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(vipGuestPassword), bcrypt.DefaultCost)
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(new_GuestPassword), bcrypt.DefaultCost)
 	if err != nil {
 		return err
 	}
 
 	// Crear usuario vipGuest
 	vipGuest := User{
-		Email:    vipGuestEmail,
-		Username: vipGuestUsername,
+		Email:    new_GuestEmail,
+		Username: new_GuestUsername,
 		Password: string(hashedPassword),
 		Role:     "user",
 		Status:   UserStatusEnabled,
 	}
 
-	result := me.db.Create(&vipGuest)
+	result := me.db.FirstOrCreate(&vipGuest)
 	if result.Error != nil {
 		return result.Error
 	}
@@ -389,10 +400,17 @@ func (me *UserHandler) CreateVIPGuest(c *fiber.Ctx) error {
 	// genera el token de acceso
 
 	passtoken := NewPasswordToken()
-	passtoken.Create(vipGuest.ID, me.db)
+	token, err := passtoken.Create(vipGuest.ID, me.db)
+	if err != nil {
+		myerr := fmt.Sprintf("%s", err)
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			// "message": "Server error. Try later",
+			"message": myerr,
+		})
+	}
 
 	return c.JSON(fiber.Map{
-		"email": vipGuestEmail,
-		"token": passtoken.Token,
+		"email": new_GuestEmail,
+		"token": token,
 	})
 }
