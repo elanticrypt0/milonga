@@ -16,8 +16,8 @@ import (
 )
 
 type PasswordToken struct {
-	ID        uuid.UUID `gorm:"type:uuid;primary_key;"`
-	UserID    uuid.UUID `gorm:"type:uuid;not null"`
+	ID        uuid.UUID `gorm:"type:varchar(50);primary_key;"`
+	UserID    uuid.UUID `gorm:"type:varchar(50);not null"`
 	Token     string    `gorm:"unique;not null"`
 	IsUsed    bool      `gorm:"default:false"`
 	ExpiresAt time.Time `gorm:"not null"`
@@ -28,6 +28,7 @@ type PasswordToken struct {
 const (
 	DefaultTokenValidity = 48 * time.Hour
 	DefaultTokenLength   = 6
+	TOKEN_NOT_VALID      = TOKEN_NOT_VALID
 )
 
 func NewPasswordToken() *PasswordToken {
@@ -106,7 +107,7 @@ func (me *PasswordToken) RefreshTokenWithValidity(userID uuid.UUID, token string
 	}
 
 	if token != decrypted_token {
-		return "", fmt.Errorf("token is not valid")
+		return "", fmt.Errorf(TOKEN_NOT_VALID)
 	}
 
 	if time.Now().After(instance.ExpiresAt) {
@@ -151,8 +152,21 @@ func (me *PasswordToken) CheckToken(userID uuid.UUID, token string, tx *gorm.DB)
 		return fmt.Errorf("token not found or already used")
 	}
 
-	if token != decrypted_token {
-		return fmt.Errorf("token is not valid")
+	// si el token es corto: es decir ABC-DFG
+	if len(token) == 7 {
+		if token != decrypted_token {
+			return fmt.Errorf(TOKEN_NOT_VALID)
+		}
+	} else {
+		// si el token es largo (es decir sin descifrar)
+		inputToken, err := me._decryptToken(token)
+		if err != nil {
+			return fmt.Errorf(TOKEN_NOT_VALID)
+		}
+
+		if inputToken != decrypted_token {
+			return fmt.Errorf(TOKEN_NOT_VALID)
+		}
 	}
 
 	if time.Now().After(instance.ExpiresAt) {
