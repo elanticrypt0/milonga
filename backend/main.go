@@ -3,7 +3,7 @@ package main
 import (
 	"fmt"
 	"log"
-	src "milonga/api"
+	"milonga/api/setup"
 	"milonga/cmd/cli"
 	"milonga/internal/app"
 	"milonga/internal/utils"
@@ -57,7 +57,7 @@ func main() {
 		TimeZone:   "America/Argentina/Buenos_Aires",
 	}))
 
-	src.ApiSetup(app)
+	setup.ApiSetup(app)
 
 	// remove this to open the web on the start
 	// utils.OpenInBrowser(app.Config.AppHost)
