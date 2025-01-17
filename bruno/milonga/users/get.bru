@@ -1,0 +1,15 @@
+meta {
+  name: search
+  type: http
+  seq: 2
+}
+
+get {
+  url: http://127.0.0.1:8921/api/v1/users/search?email=test@example.com
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{login.response.body.token}}
+}

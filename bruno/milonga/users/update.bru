@@ -1,0 +1,20 @@
+meta {
+  name: update
+  type: http
+  seq: 2
+}
+
+put {
+  url: http://127.0.0.1:8921/api/v1/users/:id
+  body: json
+  auth: bearer
+}
+
+json {
+  "username": "updateduser",
+  "email": "updated@example.com"
+}
+
+auth:bearer {
+  token: {{login.response.body.token}}
+}

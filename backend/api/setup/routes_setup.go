@@ -1,6 +1,7 @@
-package routes
+package setup
 
 import (
+	"milonga/api/routes"
 	"milonga/internal/app"
 )
 
@@ -10,8 +11,8 @@ func RoutesSetup(app *app.App) {
 
 	SetupMilongaRoutes(app, router)
 
-	ProtectedRoutes(app)
-	examplesRoutes(app)
+	routes.ProtectedRoutes(app)
+	routes.ExamplesRoutes(app)
 	staticRoutes(app)
 
 }

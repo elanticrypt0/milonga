@@ -1,0 +1,15 @@
+meta {
+  name: delete
+  type: http
+  seq: 2
+}
+
+delete {
+  url: http://127.0.0.1:8921/api/v1/users/:id
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{login.response.body.token}}
+}

@@ -1,0 +1,15 @@
+meta {
+  name: get_profile
+  type: http
+  seq: 1
+}
+
+get {
+  url: http://127.0.0.1:8921/api/v1/auth/profile
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{login.response.body.token}}
+}

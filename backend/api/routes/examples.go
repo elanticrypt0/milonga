@@ -9,7 +9,7 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
-func examplesRoutes(app *app.App) {
+func ExamplesRoutes(app *app.App) {
 
 	// para agrupar las urls en api
 	api := app.Server.Group("api")

@@ -28,7 +28,7 @@ type PasswordToken struct {
 const (
 	DefaultTokenValidity = 48 * time.Hour
 	DefaultTokenLength   = 6
-	TOKEN_NOT_VALID      = TOKEN_NOT_VALID
+	TOKEN_NOT_VALID      = "token is not valid"
 )
 
 func NewPasswordToken() *PasswordToken {

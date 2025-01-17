@@ -1,0 +1,17 @@
+meta {
+  name: login
+  type: http
+  seq: 1
+}
+
+post {
+  name: login
+  url: http://127.0.0.1:8921/api/v1/auth/login
+  body: json
+  auth: none
+}
+
+json {
+  "email": "test@example.com",
+  "password": "securepass123"
+}

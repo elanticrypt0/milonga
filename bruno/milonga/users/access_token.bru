@@ -1,0 +1,19 @@
+meta {
+  name: Access_token
+  type: http
+  seq: 2
+}
+
+post {
+  url: http://127.0.0.1:8921/api/v1/users/guest/token
+  body: json
+  auth: bearer
+}
+
+json {
+  "email": "guest@example.com"
+}
+
+auth:bearer {
+  token: {{login.response.body.token}}
+}

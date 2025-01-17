@@ -4,7 +4,8 @@ import (
 	"fmt"
 	"milonga/internal/utils"
 
-	"github.com/elanticrypt0/dbman"
+	"milonga/internal/dbman"
+
 	"github.com/gofiber/fiber/v2"
 )
 

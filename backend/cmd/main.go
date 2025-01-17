@@ -3,6 +3,7 @@ package main
 import (
 	"flag"
 	"fmt"
+	src "milonga/api"
 	"milonga/cmd/cli"
 	"milonga/internal/app"
 	"milonga/internal/utils"
@@ -59,10 +60,8 @@ func main() {
 func appSetup() *app.App {
 	app := app.New(utils.GetAppRootPath() + "/config/app_config.toml")
 
-	/* Change this with your needs */
-	app.UseDB()
-	app.DB.Connect("local")
-	app.DB.SetPrimary("local")
+	// call default api databaseconnection
+	src.DatabaseSetup(app)
 
 	return app
 }

@@ -19,8 +19,8 @@ const (
 )
 
 type LoginAudit struct {
-	ID            uuid.UUID `gorm:"type:uuid;primary_key;"`
-	UserID        uuid.UUID `gorm:"type:uuid;not null"`
+	ID            uuid.UUID `gorm:"type:varchar(50);primary_key;"`
+	UserID        uuid.UUID `gorm:"type:varchar(50);not null"`
 	LoginTime     time.Time `gorm:"not null"`
 	LogoutTime    *time.Time
 	IPAddress     string      `gorm:"size:45;not null"`  // IPv6 length

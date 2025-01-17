@@ -1,14 +1,13 @@
-package src
+package setup
 
 import (
-	"milonga/api/routes"
 	"milonga/internal/app"
 )
 
 func ApiSetup(app *app.App) {
 
 	DatabaseSetup(app)
-	routes.RoutesSetup(app)
+	RoutesSetup(app)
 
 }
 
