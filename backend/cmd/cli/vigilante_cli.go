@@ -10,7 +10,7 @@ import (
 
 func VigilanteMigrate(db *gorm.DB) {
 	log.Println("Installing vigilante basic...")
-	db.AutoMigrate(&vigilante.User{})
+	db.AutoMigrate(&vigilante.UserAuth{})
 	log.Println("All done!")
 }
 

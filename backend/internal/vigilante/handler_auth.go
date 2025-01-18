@@ -60,7 +60,7 @@ func (me *AuthHandler) Register(c *fiber.Ctx) error {
 
 	hashedPasswordStr := string(hashedPassword)
 
-	user := &User{
+	user := &UserAuth{
 		Username: input.Username,
 		Email:    input.Email,
 		Password: hashedPasswordStr,
@@ -92,7 +92,7 @@ func (me *AuthHandler) Login(c *fiber.Ctx) error {
 		})
 	}
 
-	var user User
+	var user UserAuth
 	result := me.db.Where("email = ? AND status = ?", input.Email, UserStatusEnabled).First(&user)
 	if result.Error != nil {
 
@@ -172,7 +172,7 @@ func (me *AuthHandler) LoginByPasswordToken(c *fiber.Ctx) error {
 		})
 	}
 
-	var user User
+	var user UserAuth
 	result := me.db.Where("email = ? AND status = ?", input.Email, UserStatusEnabled).First(&user)
 	if result.Error != nil {
 
@@ -254,7 +254,7 @@ func (me *AuthHandler) LoginByPasswordTokenWithLink(c *fiber.Ctx) error {
 		})
 	}
 
-	var user User
+	var user UserAuth
 	result := me.db.Where("email = ? AND status = ?", input.Email, UserStatusEnabled).First(&user)
 	if result.Error != nil {
 
@@ -350,7 +350,7 @@ func (me *AuthHandler) GetProfile(c *fiber.Ctx) error {
 	tokenUser := c.Locals("user").(jwt.MapClaims)
 	userID := tokenUser["user_id"].(string)
 
-	user := &User{}
+	user := &UserAuth{}
 	err := user.GetProfile(me.db, userID)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {

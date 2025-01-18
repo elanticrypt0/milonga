@@ -5,8 +5,8 @@ import (
 	"gorm.io/gorm"
 )
 
-type User struct {
-	ID       uuid.UUID  `gorm:"type:varchar(50);primary_key;"`
+type UserAuth struct {
+	ID       uuid.UUID  `gorm:"type:uuid;primary_key;"`
 	Email    string     `gorm:"unique;not null"`
 	Username string     `gorm:"unique;not null"`
 	Password string     `gorm:"type:text;not null"`
@@ -16,12 +16,12 @@ type User struct {
 }
 
 // BeforeCreate será llamado por GORM antes de crear un nuevo usuario
-func (u *User) BeforeCreate(tx *gorm.DB) error {
+func (u *UserAuth) BeforeCreate(tx *gorm.DB) error {
 	u.ID = uuid.New()
 	return nil
 }
 
-func (u *User) GetProfile(db *gorm.DB, userID string) error {
+func (u *UserAuth) GetProfile(db *gorm.DB, userID string) error {
 	result := db.First(u, "id = ?", userID)
 
 	if result.Error != nil {

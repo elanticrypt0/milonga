@@ -10,7 +10,7 @@ import (
 
 func CreateDefaultAdmin(db *gorm.DB, app *app.App) error {
 	var count int64
-	db.Model(&User{}).Where("role = ?", "admin").Count(&count)
+	db.Model(&UserAuth{}).Where("role = ?", "admin").Count(&count)
 
 	// Si ya existe al menos un admin, no creamos uno nuevo
 	if count > 0 {
@@ -32,7 +32,7 @@ func CreateDefaultAdmin(db *gorm.DB, app *app.App) error {
 	}
 
 	// Crear usuario admin
-	admin := User{
+	admin := UserAuth{
 		Email:    adminEmail,
 		Username: adminUsername,
 		Password: string(hashedPassword),
@@ -54,7 +54,7 @@ func CreateDefaultGuest(db *gorm.DB, app *app.App) error {
 	randomUsername := GenerateUsername(12, 24)
 
 	var count int64
-	db.Model(&User{}).Where("username = ?", randomUsername).Count(&count)
+	db.Model(&UserAuth{}).Where("username = ?", randomUsername).Count(&count)
 
 	// Obtener credenciales del admin desde variables de entorno
 	vipGuestEmail := "guest@token.pass"
@@ -68,7 +68,7 @@ func CreateDefaultGuest(db *gorm.DB, app *app.App) error {
 	}
 
 	// Crear usuario vipGuest
-	vipGuest := User{
+	vipGuest := UserAuth{
 		Email:    vipGuestEmail,
 		Username: vipGuestUsername,
 		Password: string(hashedPassword),
@@ -76,7 +76,7 @@ func CreateDefaultGuest(db *gorm.DB, app *app.App) error {
 		Status:   UserStatusEnabled,
 	}
 
-	var vipGuest2 User
+	var vipGuest2 UserAuth
 
 	result := db.Create(&vipGuest)
 	if result.Error != nil {

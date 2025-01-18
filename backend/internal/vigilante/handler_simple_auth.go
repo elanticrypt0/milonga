@@ -37,7 +37,7 @@ func (me *SimpleAuthHandler) Login(c *fiber.Ctx) error {
 		return fmt.Errorf("invalid input")
 	}
 
-	var user User
+	var user UserAuth
 	result := me.db.Where("email = ? AND status = ?", input.Email, UserStatusEnabled).First(&user)
 	if result.Error != nil {
 
@@ -114,11 +114,11 @@ func (me *SimpleAuthHandler) Logout(c *fiber.Ctx) error {
 	return nil
 }
 
-func (me *SimpleAuthHandler) GetProfile(c *fiber.Ctx) (*User, error) {
+func (me *SimpleAuthHandler) GetProfile(c *fiber.Ctx) (*UserAuth, error) {
 	tokenUser := c.Locals("user").(jwt.MapClaims)
 	userID := tokenUser["user_id"].(string)
 
-	user := &User{}
+	user := &UserAuth{}
 	err := user.GetProfile(me.db, userID)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {

@@ -20,23 +20,23 @@ const (
 )
 
 type LoginAudit struct {
-	ID            uuid.UUID `gorm:"type:varchar(50);primary_key;"`
-	UserID        uuid.UUID `gorm:"type:varchar(50)"`
+	ID            uuid.UUID `gorm:"type:uuid;primary_key;"`
+	UserAuthID    uuid.UUID `gorm:"type:uuid"`
 	UserEmail     string
 	LoginTime     time.Time `gorm:"not null"`
 	LogoutTime    *time.Time
-	IPAddress     string      `gorm:"size:45;not null"`  // IPv6 length
-	UserAgent     string      `gorm:"size:255"`          // Navegador/App info
-	Device        string      `gorm:"size:100"`          // Dispositivo usado
-	Location      string      `gorm:"size:100"`          // Ubicación basada en IP
-	LoginMethod   LoginMethod `gorm:"size:20;not null"`  // Método de autenticación
-	Status        string      `gorm:"size:20;not null"`  // Éxito/Fallo/Bloqueado
-	FailureReason string      `gorm:"size:255"`          // Razón si falló
-	SessionID     string      `gorm:"size:100"`          // ID de sesión
-	Country       string      `gorm:"size:2"`            // Código ISO del país
-	City          string      `gorm:"size:100"`          // Ciudad basada en IP
-	Success       bool        `gorm:"not null"`          // Indicador de éxito
-	User          User        `gorm:"foreignKey:UserID"` // Relación con Usuario
+	IPAddress     string      `gorm:"size:45;not null"`      // IPv6 length
+	UserAgent     string      `gorm:"size:255"`              // Navegador/App info
+	Device        string      `gorm:"size:100"`              // Dispositivo usado
+	Location      string      `gorm:"size:100"`              // Ubicación basada en IP
+	LoginMethod   LoginMethod `gorm:"size:20;not null"`      // Método de autenticación
+	Status        string      `gorm:"size:20;not null"`      // Éxito/Fallo/Bloqueado
+	FailureReason string      `gorm:"size:255"`              // Razón si falló
+	SessionID     string      `gorm:"size:100"`              // ID de sesión
+	Country       string      `gorm:"size:2"`                // Código ISO del país
+	City          string      `gorm:"size:100"`              // Ciudad basada en IP
+	Success       bool        `gorm:"not null"`              // Indicador de éxito
+	User          UserAuth    `gorm:"foreignKey:UserAuthID"` // Relación con Usuario
 	gorm.Model
 }
 
@@ -57,9 +57,9 @@ func (me *LoginAudit) Create(tx *gorm.DB) error {
 }
 
 // RegisterSuccessfulLogin registra un login exitoso
-func (me *LoginAudit) RegisterSuccessfulLogin(userID uuid.UUID, userEmail, ipAddress, userAgent string, method LoginMethod, tx *gorm.DB) error {
-	me.UserID = userID
-	me.SessionID = (userID).String()
+func (me *LoginAudit) RegisterSuccessfulLogin(userAuthID uuid.UUID, userEmail, ipAddress, userAgent string, method LoginMethod, tx *gorm.DB) error {
+	me.UserAuthID = userAuthID
+	me.SessionID = (userAuthID).String()
 	me.UserEmail = userEmail
 	me.IPAddress = ipAddress
 	me.UserAgent = userAgent
@@ -76,8 +76,8 @@ func (me *LoginAudit) RegisterSuccessfulLogin(userID uuid.UUID, userEmail, ipAdd
 }
 
 // RegisterFailedLogin registra un intento fallido
-func (me *LoginAudit) RegisterFailedLogin(userID uuid.UUID, userEmail, ipAddress, userAgent string, method LoginMethod, reason string, tx *gorm.DB) error {
-	me.UserID = userID
+func (me *LoginAudit) RegisterFailedLogin(userAuthID uuid.UUID, userEmail, ipAddress, userAgent string, method LoginMethod, reason string, tx *gorm.DB) error {
+	me.UserAuthID = userAuthID
 	me.UserEmail = userEmail
 	me.IPAddress = ipAddress
 	me.UserAgent = userAgent
@@ -100,7 +100,7 @@ func (me *LoginAudit) RegisterLogout(sessionID string, tx *gorm.DB) error {
 // GetUserLastLogins obtiene los últimos logins de un usuario
 func (me *LoginAudit) GetUserLastLogins(userID uuid.UUID, limit int, tx *gorm.DB) ([]LoginAudit, error) {
 	var logins []LoginAudit
-	err := tx.Where("user_id = ?", userID).
+	err := tx.Where("user_auth_id = ?", userID).
 		Order("login_time DESC").
 		Limit(limit).
 		Find(&logins).Error
@@ -108,20 +108,20 @@ func (me *LoginAudit) GetUserLastLogins(userID uuid.UUID, limit int, tx *gorm.DB
 }
 
 // GetFailedLoginAttempts obtiene los intentos fallidos recientes
-func (me *LoginAudit) GetFailedLoginAttempts(userID uuid.UUID, duration time.Duration, tx *gorm.DB) (int64, error) {
+func (me *LoginAudit) GetFailedLoginAttempts(userAuthID uuid.UUID, duration time.Duration, tx *gorm.DB) (int64, error) {
 	var count int64
 	err := tx.Model(&LoginAudit{}).
-		Where("user_id = ? AND success = ? AND login_time > ?",
-			userID, false, time.Now().Add(-duration)).
+		Where("user_auth_id = ? AND success = ? AND login_time > ?",
+			userAuthID, false, time.Now().Add(-duration)).
 		Count(&count).Error
 	return count, err
 }
 
 // GetActiveSessionsCount obtiene el número de sesiones activas
-func (me *LoginAudit) GetActiveSessionsCount(userID uuid.UUID, tx *gorm.DB) (int64, error) {
+func (me *LoginAudit) GetActiveSessionsCount(userAuthID uuid.UUID, tx *gorm.DB) (int64, error) {
 	var count int64
 	err := tx.Model(&LoginAudit{}).
-		Where("user_id = ? AND logout_time IS NULL", userID).
+		Where("user_auth_id = ? AND logout_time IS NULL", userAuthID).
 		Count(&count).Error
 	return count, err
 }

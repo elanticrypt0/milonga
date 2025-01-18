@@ -16,12 +16,12 @@ import (
 )
 
 type PasswordToken struct {
-	ID        uuid.UUID `gorm:"type:varchar(50);primary_key;"`
-	UserID    uuid.UUID `gorm:"type:varchar(50);not null"`
-	Token     string    `gorm:"unique;not null"`
-	IsUsed    bool      `gorm:"default:false"`
-	ExpiresAt time.Time `gorm:"not null"`
-	User      User      `gorm:"foreignKey:UserID"`
+	ID         uuid.UUID `gorm:"type:varchar(50);primary_key;"`
+	UserAuthID uuid.UUID `gorm:"type:varchar(50);not null"`
+	Token      string    `gorm:"unique;not null"`
+	IsUsed     bool      `gorm:"default:false"`
+	ExpiresAt  time.Time `gorm:"not null"`
+	User       UserAuth  `gorm:"foreignKey:UserAuthID"`
 	gorm.Model
 }
 
@@ -53,9 +53,9 @@ func (me *PasswordToken) CreateWithValidity(userID uuid.UUID, validity time.Dura
 	}
 
 	newPassToken := &PasswordToken{
-		UserID:    userID,
-		Token:     encryptedToken,
-		ExpiresAt: time.Now().Add(validity),
+		UserAuthID: userID,
+		Token:      encryptedToken,
+		ExpiresAt:  time.Now().Add(validity),
 	}
 
 	err = tx.Save(newPassToken).Error
@@ -78,10 +78,10 @@ func (me *PasswordToken) UpdateTokenWithValidity(validity time.Duration, tx *gor
 	}
 
 	sameToken := &PasswordToken{
-		UserID:    me.UserID,
-		Token:     encryptedToken,
-		IsUsed:    false,
-		ExpiresAt: time.Now().Add(validity),
+		UserAuthID: me.UserAuthID,
+		Token:      encryptedToken,
+		IsUsed:     false,
+		ExpiresAt:  time.Now().Add(validity),
 	}
 
 	if err := tx.Save(sameToken).Error; err != nil {
@@ -97,7 +97,7 @@ func (me *PasswordToken) RefreshToken(userID uuid.UUID, token string, tx *gorm.D
 
 func (me *PasswordToken) RefreshTokenWithValidity(userID uuid.UUID, token string, validity time.Duration, tx *gorm.DB) (string, error) {
 	var instance PasswordToken
-	if err := tx.First(&instance, "user_id = ? and is_used=?", userID, false).Error; err != nil {
+	if err := tx.First(&instance, "user_auth_id = ? and is_used=?", userID, false).Error; err != nil {
 		return "", fmt.Errorf("user's token not found")
 	}
 
@@ -128,9 +128,9 @@ func (me *PasswordToken) RefreshTokenWithValidity(userID uuid.UUID, token string
 	}
 
 	newToken := &PasswordToken{
-		UserID:    instance.UserID,
-		Token:     newEncryptedToken,
-		ExpiresAt: time.Now().Add(validity),
+		UserAuthID: instance.UserAuthID,
+		Token:      newEncryptedToken,
+		ExpiresAt:  time.Now().Add(validity),
 	}
 
 	if err := tx.Save(newToken).Error; err != nil {
@@ -143,7 +143,7 @@ func (me *PasswordToken) RefreshTokenWithValidity(userID uuid.UUID, token string
 func (me *PasswordToken) CheckToken(userID uuid.UUID, token string, tx *gorm.DB) error {
 
 	var instance PasswordToken
-	if err := tx.First(&instance, "user_id = ? and is_used=?", userID, false).Error; err != nil {
+	if err := tx.First(&instance, "user_auth_id = ? and is_used=?", userID, false).Error; err != nil {
 		return fmt.Errorf("user's token not found")
 	}
 
