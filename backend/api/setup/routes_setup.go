@@ -8,11 +8,15 @@ import (
 func RoutesSetup(app *app.App) {
 
 	router := app.Server.Group("api/v1")
+	adminRouter := app.Server.Group("admin")
 
+	// SetupMilongaRoutes(app, router)
+
+	// routes.ProtectedRoutes(app)
+	// routes.ExamplesRoutes(app)
+	routes.AuthRoutes(app, adminRouter)
+	routes.AdminRoutes(app, adminRouter)
 	SetupMilongaRoutes(app, router)
-
-	routes.ProtectedRoutes(app)
-	routes.ExamplesRoutes(app)
 	staticRoutes(app)
 
 }

@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"milonga/internal/app"
 	"strings"
+	"time"
 
 	"github.com/gofiber/fiber/v2"
 )
@@ -37,4 +38,15 @@ func GenerateLoginPasswordTokenLink(app *app.App, email, passwordtoken string) s
 	ref := base64.StdEncoding.EncodeToString([]byte(refFormat))
 
 	return fmt.Sprintf("%s/api/v1/auth/login/guest/link?ref=%s", app.Config.AppHost, ref)
+}
+
+func CreateSessionCookie(token string) *fiber.Cookie {
+	return &fiber.Cookie{
+		Name:     "userSession",
+		Value:    token,
+		Expires:  time.Now().Add(2 * time.Hour),
+		Secure:   true,
+		HTTPOnly: true,
+		SameSite: "Lax",
+	}
 }

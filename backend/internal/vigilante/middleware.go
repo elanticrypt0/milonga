@@ -23,24 +23,31 @@ func NewVigilanteMiddelware(app *app.App) *VigilanteMiddleware {
 
 // ValidateToken es una función auxiliar que valida el token y retorna los claims
 func (me *VigilanteMiddleware) ValidateToken(c *fiber.Ctx) (jwt.MapClaims, error) {
+
+	// auth be header
 	authHeader := c.Get("Authorization")
 
-	if authHeader == "" {
-		return nil, fmt.Errorf("no authorization header")
+	if authHeader != "" {
+		tokenString := strings.Replace(authHeader, "Bearer ", "", 1)
+		token, err := me.isTokenValid(tokenString)
+		if err != nil {
+			return nil, err
+		}
+		return token, nil
 	}
 
-	tokenString := strings.Replace(authHeader, "Bearer ", "", 1)
-
-	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
-		return []byte(me.jwtSecret), nil
-	})
-
-	if err != nil || !token.Valid {
-		return nil, fmt.Errorf("invalid token")
+	// auth by cookies
+	tokenCookie := c.Cookies("userSession", "x")
+	if tokenCookie != "x" {
+		token, err := me.isTokenValid(tokenCookie)
+		if err != nil {
+			return nil, err
+		}
+		return token, nil
 	}
 
-	claims := token.Claims.(jwt.MapClaims)
-	return claims, nil
+	return nil, fmt.Errorf("no authorization")
+
 }
 
 // Protected verifica que el token sea válido
@@ -89,4 +96,17 @@ func (me *VigilanteMiddleware) IsStaff() fiber.Handler {
 		}
 		return c.Next()
 	}
+}
+
+func (me *VigilanteMiddleware) isTokenValid(tokenString string) (jwt.MapClaims, error) {
+	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
+		return []byte(me.jwtSecret), nil
+	})
+
+	if err != nil || !token.Valid {
+		return nil, fmt.Errorf("invalid token")
+	}
+
+	claims := token.Claims.(jwt.MapClaims)
+	return claims, nil
 }

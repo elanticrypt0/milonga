@@ -95,6 +95,19 @@ func (me *AuthHandler) Login(c *fiber.Ctx) error {
 	var user User
 	result := me.db.Where("email = ? AND status = ?", input.Email, UserStatusEnabled).First(&user)
 	if result.Error != nil {
+
+		// Registrar intento fallido
+		loginAudit := NewLoginAudit()
+		loginAudit.RegisterFailedLogin(
+			user.ID, // UUID nulo porque el usuario no existe
+			input.Email,
+			c.IP(),
+			c.Get("User-Agent"),
+			LoginMethodPassword,
+			"User not found",
+			me.db,
+		)
+
 		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
 			"message": "Invalid credentials",
 		})
@@ -103,8 +116,21 @@ func (me *AuthHandler) Login(c *fiber.Ctx) error {
 	// Verify password
 	err := ComparePassword(user.Password, input.Password)
 	if err != nil {
+
+		// Registrar intento fallido
+		loginAudit := NewLoginAudit()
+		loginAudit.RegisterFailedLogin(
+			user.ID, // UUID nulo porque el usuario no existe
+			input.Email,
+			c.IP(),
+			c.Get("User-Agent"),
+			LoginMethodPassword,
+			"Invalid password",
+			me.db,
+		)
+
 		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
-			"message": "Invalid credentials",
+			"message": "Invalid credentials -2",
 		})
 	}
 
@@ -115,6 +141,17 @@ func (me *AuthHandler) Login(c *fiber.Ctx) error {
 			"message": "Could not login",
 		})
 	}
+
+	// Registrar login exitoso
+	loginAudit := NewLoginAudit()
+	loginAudit.RegisterSuccessfulLogin(
+		user.ID,
+		input.Email,
+		c.IP(),
+		c.Get("User-Agent"),
+		LoginMethodPassword,
+		me.db,
+	)
 
 	return c.JSON(fiber.Map{
 		"token": t,
@@ -138,6 +175,19 @@ func (me *AuthHandler) LoginByPasswordToken(c *fiber.Ctx) error {
 	var user User
 	result := me.db.Where("email = ? AND status = ?", input.Email, UserStatusEnabled).First(&user)
 	if result.Error != nil {
+
+		// Registrar intento fallido
+		loginAudit := NewLoginAudit()
+		loginAudit.RegisterFailedLogin(
+			user.ID,
+			input.Email,
+			c.IP(),
+			c.Get("User-Agent"),
+			LoginMethodToken,
+			"User not found",
+			me.db,
+		)
+
 		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
 			"message": "Invalid credentials",
 		})
@@ -147,6 +197,19 @@ func (me *AuthHandler) LoginByPasswordToken(c *fiber.Ctx) error {
 
 	err := passToken.CheckToken(user.ID, input.PasswordToken, me.db)
 	if err != nil {
+
+		// Registrar intento fallido
+		loginAudit := NewLoginAudit()
+		loginAudit.RegisterFailedLogin(
+			user.ID,
+			input.Email,
+			c.IP(),
+			c.Get("User-Agent"),
+			LoginMethodToken,
+			"Invalid token",
+			me.db,
+		)
+
 		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
 			"message": "Invalid credentials",
 		})
@@ -161,6 +224,17 @@ func (me *AuthHandler) LoginByPasswordToken(c *fiber.Ctx) error {
 			"message": "Could not login",
 		})
 	}
+
+	// Registrar login exitoso
+	loginAudit := NewLoginAudit()
+	loginAudit.RegisterSuccessfulLogin(
+		user.ID,
+		input.Email,
+		c.IP(),
+		c.Get("User-Agent"),
+		LoginMethodToken,
+		me.db,
+	)
 
 	return c.JSON(fiber.Map{
 		"token": t,
@@ -183,6 +257,19 @@ func (me *AuthHandler) LoginByPasswordTokenWithLink(c *fiber.Ctx) error {
 	var user User
 	result := me.db.Where("email = ? AND status = ?", input.Email, UserStatusEnabled).First(&user)
 	if result.Error != nil {
+
+		// Registrar intento fallido
+		loginAudit := NewLoginAudit()
+		loginAudit.RegisterFailedLogin(
+			user.ID,
+			input.Email,
+			c.IP(),
+			c.Get("User-Agent"),
+			LoginMethodToken,
+			"User not found",
+			me.db,
+		)
+
 		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
 			"message": "Invalid credentials",
 		})
@@ -193,9 +280,20 @@ func (me *AuthHandler) LoginByPasswordTokenWithLink(c *fiber.Ctx) error {
 	err = passToken.CheckToken(user.ID, input.PasswordToken, me.db)
 	if err != nil {
 
+		// Registrar intento fallido
+		loginAudit := NewLoginAudit()
+		loginAudit.RegisterFailedLogin(
+			user.ID,
+			input.Email,
+			c.IP(),
+			c.Get("User-Agent"),
+			LoginMethodToken,
+			"Invalid token",
+			me.db,
+		)
+
 		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
-			// "message": "Invalid credentials - token",
-			"message": fmt.Sprintf("%s", err),
+			"message": "Invalid credentials",
 		})
 	}
 
@@ -206,6 +304,17 @@ func (me *AuthHandler) LoginByPasswordTokenWithLink(c *fiber.Ctx) error {
 			"message": "Could not login",
 		})
 	}
+
+	// Registrar login exitoso
+	loginAudit := NewLoginAudit()
+	loginAudit.RegisterSuccessfulLogin(
+		user.ID,
+		input.Email,
+		c.IP(),
+		c.Get("User-Agent"),
+		LoginMethodToken,
+		me.db,
+	)
 
 	return c.JSON(fiber.Map{
 		"token": t,

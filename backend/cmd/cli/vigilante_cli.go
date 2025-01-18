@@ -15,7 +15,7 @@ func VigilanteMigrate(db *gorm.DB) {
 }
 
 func VigilanteMigrateFull(db *gorm.DB) {
-	log.Println("Installing vigilante full...")
+	log.Println("Installing vigilante...")
 
 	VigilanteMigrate(db)
 	VigilanteMigrateLoginAudit(db)

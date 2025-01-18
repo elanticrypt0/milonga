@@ -10,6 +10,7 @@ import (
 type LoginMethod string
 
 const (
+	LoginMethodSimple   LoginMethod = "password"
 	LoginMethodPassword LoginMethod = "password"
 	LoginMethodToken    LoginMethod = "token"
 	LoginMethodOAuth    LoginMethod = "oauth"
@@ -20,7 +21,8 @@ const (
 
 type LoginAudit struct {
 	ID            uuid.UUID `gorm:"type:varchar(50);primary_key;"`
-	UserID        uuid.UUID `gorm:"type:varchar(50);not null"`
+	UserID        uuid.UUID `gorm:"type:varchar(50)"`
+	UserEmail     string
 	LoginTime     time.Time `gorm:"not null"`
 	LogoutTime    *time.Time
 	IPAddress     string      `gorm:"size:45;not null"`  // IPv6 length
@@ -55,8 +57,9 @@ func (me *LoginAudit) Create(tx *gorm.DB) error {
 }
 
 // RegisterSuccessfulLogin registra un login exitoso
-func (me *LoginAudit) RegisterSuccessfulLogin(userID uuid.UUID, ipAddress, userAgent string, method LoginMethod, tx *gorm.DB) error {
+func (me *LoginAudit) RegisterSuccessfulLogin(userID uuid.UUID, userEmail, ipAddress, userAgent string, method LoginMethod, tx *gorm.DB) error {
 	me.UserID = userID
+	me.UserEmail = userEmail
 	me.IPAddress = ipAddress
 	me.UserAgent = userAgent
 	me.LoginMethod = method
@@ -72,8 +75,9 @@ func (me *LoginAudit) RegisterSuccessfulLogin(userID uuid.UUID, ipAddress, userA
 }
 
 // RegisterFailedLogin registra un intento fallido
-func (me *LoginAudit) RegisterFailedLogin(userID uuid.UUID, ipAddress, userAgent string, method LoginMethod, reason string, tx *gorm.DB) error {
+func (me *LoginAudit) RegisterFailedLogin(userID uuid.UUID, userEmail, ipAddress, userAgent string, method LoginMethod, reason string, tx *gorm.DB) error {
 	me.UserID = userID
+	me.UserEmail = userEmail
 	me.IPAddress = ipAddress
 	me.UserAgent = userAgent
 	me.LoginMethod = method

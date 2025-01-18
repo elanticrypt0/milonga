@@ -17,6 +17,9 @@ func DatabaseSetup(app *app.App) {
 	// app.DB.Connect("local")
 	// app.DB.SetPrimary("local")
 
-	app.DB.Connect("mysql-test")
-	app.DB.SetPrimary("mysql-test")
+	// app.DB.Connect("mysql_dev")
+	// app.DB.SetPrimary("mysql_dev")
+
+	app.DB.Connect("psg_dev")
+	app.DB.SetPrimary("psg_dev")
 }

@@ -3,7 +3,7 @@ package main
 import (
 	"flag"
 	"fmt"
-	src "milonga/api"
+	"milonga/api/setup"
 	"milonga/cmd/cli"
 	"milonga/internal/app"
 	"milonga/internal/utils"
@@ -16,7 +16,7 @@ func main() {
 	app := appSetup()
 
 	migrateCmd := flag.Bool("migrate", false, "Run database migrations")
-	migrateVigilanteBasicCmd := flag.Bool("vigilante:install_basic", false, "Run database migrations")
+	migrateVigilanteBasicCmd := flag.Bool("vigilante:install", false, "Run database migrations")
 	migrateVigilanteFullCmd := flag.Bool("vigilante:install_full", false, "Run database migrations")
 	migrateVigilanteGuestCmd := flag.Bool("vigilante:make_guest", false, "Run database migrations")
 	generateVigilanteEncryptionkeyCmd := flag.Bool("vigilante:generate_key", false, "Run database migrations")
@@ -30,7 +30,7 @@ func main() {
 	}
 
 	if *migrateVigilanteBasicCmd {
-		cli.VigilanteMigrate(app.DB.Primary)
+		cli.VigilanteMigrateFull(app.DB.Primary)
 		cli.VigilanteAddAdmin(app, app.DB.Primary)
 	}
 
@@ -61,7 +61,7 @@ func appSetup() *app.App {
 	app := app.New(utils.GetAppRootPath() + "/config/app_config.toml")
 
 	// call default api databaseconnection
-	src.DatabaseSetup(app)
+	setup.DatabaseSetup(app)
 
 	return app
 }

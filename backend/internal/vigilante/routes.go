@@ -13,13 +13,6 @@ func ActivateRoutes(app *app.App, router fiber.Router) {
 
 }
 
-func ActivateRoutes_audit(app *app.App, router fiber.Router) {
-
-	usersRoutes(app, router)
-	authRoutes_audit(app, router)
-
-}
-
 func usersRoutes(app *app.App, router fiber.Router) {
 
 	middleware := NewVigilanteMiddelware(app)
@@ -55,18 +48,5 @@ func authRoutes(app *app.App, router fiber.Router) {
 	auth.Get("/login/guest/link", handler.LoginByPasswordTokenWithLink)
 	auth.Post("/login/guest", handler.LoginByPasswordToken)
 	auth.Post("/login", handler.Login)
-
-}
-
-func authRoutes_audit(app *app.App, router fiber.Router) {
-
-	auth := router.Group("auth")
-
-	handler := NewAuthHandler(app, app.DB.Primary)
-
-	auth.Post("/register", handler.Register)
-	auth.Get("/login/guest/link", handler.LoginByPasswordTokenWithLink_audit)
-	auth.Post("/login/guest", handler.LoginByPasswordToken_audit)
-	auth.Post("/login", handler.Login_audit)
 
 }
