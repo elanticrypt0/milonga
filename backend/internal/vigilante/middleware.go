@@ -110,3 +110,26 @@ func (me *VigilanteMiddleware) isTokenValid(tokenString string) (jwt.MapClaims, 
 	claims := token.Claims.(jwt.MapClaims)
 	return claims, nil
 }
+
+// IsSameUserAsQuery verifica que el usuario que solicite información de un usuario sea el mismo
+// esta verificación se salta si es parte del staff
+func (me *VigilanteMiddleware) IsSameUserAsQuery() fiber.Handler {
+	return func(c *fiber.Ctx) error {
+		id := c.Params("id")
+		claims := c.Locals("user").(jwt.MapClaims)
+
+		if IsUser(fmt.Sprintf("%v", claims["role"])) {
+			if id != fmt.Sprintf("%v", claims["id"]) {
+				return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
+					"message": "unauthorized",
+				})
+
+			}
+			return c.Next()
+
+		}
+
+		return c.Next()
+
+	}
+}
