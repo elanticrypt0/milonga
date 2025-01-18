@@ -10,8 +10,8 @@ import (
 	"gorm.io/gorm"
 )
 
-func Setup() {
-	PrintBanner("Milonga CLI", "0.1.46")
+func Setup(version string) {
+	PrintBanner("Milonga CLI", version)
 }
 
 func Migrate(app *app.App, db *gorm.DB) {

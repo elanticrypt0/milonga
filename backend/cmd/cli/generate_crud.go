@@ -54,18 +54,24 @@ func generateHandlerFile(modelName string) error {
 	handlerTemplate := `package handlers
 
 import (
+	"milonga/internal/app"
+	"milonga/internal/handlers"
+	
 	"milonga/api/models"
 
 	"github.com/gofiber/fiber/v2"
+
 	"gorm.io/gorm"
 )
 
 type {{.Name}}Handler struct {
-	db *gorm.DB
+	handlers.Base
 }
 
-func New{{.Name}}Handler(db *gorm.DB) *{{.Name}}Handler {
-	return &{{.Name}}Handler{db: db}
+func New{{.Name}}Handler(app *app.App, DB *gorm.DB) *{{.Name}}Handler {
+	return &{{.Name}}Handler{
+		Base: handlers.NewBaseHandler(app, DB),
+	}
 }
 
 func (h *{{.Name}}Handler) Create(c *fiber.Ctx) error {
@@ -76,7 +82,7 @@ func (h *{{.Name}}Handler) Create(c *fiber.Ctx) error {
 		})
 	}
 
-	if err := h.db.Create(&item).Error; err != nil {
+	if err := h.App.DB.Primary.Create(&item).Error; err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 			"error": err.Error(),
 		})
@@ -89,7 +95,7 @@ func (h *{{.Name}}Handler) Get(c *fiber.Ctx) error {
 	id := c.Params("id")
 	var item models.{{.Name}}
 
-	if err := h.db.First(&item, id).Error; err != nil {
+	if err := h.App.DB.Primary.First(&item, id).Error; err != nil {
 		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
 			"error": "Record not found",
 		})
@@ -101,7 +107,7 @@ func (h *{{.Name}}Handler) Get(c *fiber.Ctx) error {
 func (h *{{.Name}}Handler) List(c *fiber.Ctx) error {
 	var items []models.{{.Name}}
 	
-	if err := h.db.Find(&items).Error; err != nil {
+	if err := h.App.DB.Primary.Find(&items).Error; err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 			"error": err.Error(),
 		})
@@ -114,7 +120,7 @@ func (h *{{.Name}}Handler) Update(c *fiber.Ctx) error {
 	id := c.Params("id")
 	var item models.{{.Name}}
 
-	if err := h.db.First(&item, id).Error; err != nil {
+	if err := h.App.DB.Primary.First(&item, id).Error; err != nil {
 		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
 			"error": "Record not found",
 		})
@@ -126,7 +132,7 @@ func (h *{{.Name}}Handler) Update(c *fiber.Ctx) error {
 		})
 	}
 
-	if err := h.db.Save(&item).Error; err != nil {
+	if err := h.App.DB.Primary.Save(&item).Error; err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 			"error": err.Error(),
 		})
@@ -139,13 +145,13 @@ func (h *{{.Name}}Handler) Delete(c *fiber.Ctx) error {
 	id := c.Params("id")
 	var item models.{{.Name}}
 
-	if err := h.db.First(&item, id).Error; err != nil {
+	if err := h.App.DB.Primary.First(&item, id).Error; err != nil {
 		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
 			"error": "Record not found",
 		})
 	}
 
-	if err := h.db.Delete(&item).Error; err != nil {
+	if err := h.App.DB.Primary.Delete(&item).Error; err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 			"error": err.Error(),
 		})
@@ -174,7 +180,7 @@ import (
 )
 
 func Setup{{.Name}}Routes(app *fiber.App, db *gorm.DB) {
-	handler := handlers.New{{.Name}}Handler(db)
+	handler := handlers.New{{.Name}}Handler(app,db)
 
 	routes := app.Group("/{{.LowerName}}")
 	

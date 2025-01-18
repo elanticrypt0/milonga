@@ -12,17 +12,26 @@ import (
 
 func main() {
 
-	cli.Setup()
-	app := appSetup()
+	version := "0.1.50"
+	cli.Setup(version)
+	var app *app.App
 
-	migrateCmd := flag.Bool("migrate", false, "Run database migrations")
+	// no conenct to DB
+	noLoadApp := flag.Bool("nc", false, "No connect to database")
+	// vigilante commands
+	generateVigilanteEncryptionkeyCmd := flag.Bool("vigilante:generate_key", false, "Run database migrations")
 	migrateVigilanteBasicCmd := flag.Bool("vigilante:install", false, "Run database migrations")
 	migrateVigilanteFullCmd := flag.Bool("vigilante:install_full", false, "Run database migrations")
 	migrateVigilanteGuestCmd := flag.Bool("vigilante:make_guest", false, "Run database migrations")
-	generateVigilanteEncryptionkeyCmd := flag.Bool("vigilante:generate_key", false, "Run database migrations")
+	// migrations & seeds
+	migrateCmd := flag.Bool("migrate", false, "Run database migrations")
 	seedCmd := flag.Bool("seed", false, "Run database seeds")
 
 	flag.Parse()
+
+	if !*noLoadApp {
+		app = appSetup()
+	}
 
 	if !*migrateCmd && !*migrateVigilanteBasicCmd && !*migrateVigilanteFullCmd && !*migrateVigilanteGuestCmd && !*generateVigilanteEncryptionkeyCmd && !*seedCmd {
 		fmt.Println("Uso: programa -migrate o -seed")
