@@ -11,8 +11,6 @@ import (
 
 func SetupMilongaRoutes(app *app.App, router fiber.Router) {
 	vigilante.ActivateRoutes(app, router)
-	// alternative to audit users logins
-	// vigilante.ActivateRoutes_audit(app,router)
 
 	HealthRoutes(app)
 
@@ -32,7 +30,7 @@ func HealthRoutes(app *app.App) {
 
 	// checks db connections
 	var dbs2Check []*gorm.DB
-	app.DB.CheckDefaultConnections()
+	// app.DB.CheckDefaultConnections()
 	dbs2Check = append(dbs2Check, app.DB.Primary)
 
 	healthcheck.ActivateRoutes(app, services, dbs2Check)
