@@ -59,6 +59,7 @@ func (me *LoginAudit) Create(tx *gorm.DB) error {
 // RegisterSuccessfulLogin registra un login exitoso
 func (me *LoginAudit) RegisterSuccessfulLogin(userID uuid.UUID, userEmail, ipAddress, userAgent string, method LoginMethod, tx *gorm.DB) error {
 	me.UserID = userID
+	me.SessionID = (userID).String()
 	me.UserEmail = userEmail
 	me.IPAddress = ipAddress
 	me.UserAgent = userAgent

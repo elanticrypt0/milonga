@@ -37,11 +37,16 @@ func (me *AuthHandler) Check(c *fiber.Ctx) error {
 	err := simpleAuth.Login(c)
 	if err != nil {
 		// return c.SendString(fmt.Sprintf("%s", err))
-		// c.Redirect(fmt.Sprintf("%s/admin/auth/", me.App.Config.AppHost))
-		return c.SendString(fmt.Sprintf("%s", err))
+		return c.Redirect(fmt.Sprintf("%s/admin/auth/", me.App.Config.AppHost))
 
 	}
-	//
-	return c.SendString("entra")
-	// return c.Redirect(fmt.Sprintf("%s/admin/panel/", me.App.Config.AppHost))
+	return c.Redirect(fmt.Sprintf("%s/admin/panel/", me.App.Config.AppHost))
+}
+
+func (me *AuthHandler) Logout(c *fiber.Ctx) error {
+
+	simpleAuth := vigilante.NewSimpleAuthHandler(me.App, me.App.DB.Primary)
+	simpleAuth.Logout(c)
+
+	return c.Redirect(fmt.Sprintf("%s/admin/panel/", me.App.Config.AppHost))
 }

@@ -17,6 +17,7 @@ func AuthRoutes(app *app.App, router fiber.Router) {
 	// routes
 	routes.Get("/", authHandler.Index)
 	routes.Post("/check", authHandler.Check)
+	routes.Get("/logout", authHandler.Logout)
 }
 
 func AdminRoutes(app *app.App, router fiber.Router) {

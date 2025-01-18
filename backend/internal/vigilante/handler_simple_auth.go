@@ -1,6 +1,7 @@
 package vigilante
 
 import (
+	"errors"
 	"fmt"
 
 	"gorm.io/gorm"
@@ -8,6 +9,7 @@ import (
 	"milonga/internal/app"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/golang-jwt/jwt/v5"
 	"github.com/google/uuid"
 )
 
@@ -93,4 +95,38 @@ func (me *SimpleAuthHandler) Login(c *fiber.Ctx) error {
 	c.Cookie(CreateSessionCookie(t))
 
 	return nil
+}
+
+func (me *SimpleAuthHandler) Logout(c *fiber.Ctx) error {
+
+	tokenUser := c.Locals("user").(jwt.MapClaims)
+	userID := tokenUser["user_id"].(string)
+
+	c.ClearCookie("userSession")
+
+	// register logout
+	loginAudit := NewLoginAudit()
+	loginAudit.RegisterLogout(
+		userID,
+		me.db,
+	)
+
+	return nil
+}
+
+func (me *SimpleAuthHandler) GetProfile(c *fiber.Ctx) (*User, error) {
+	tokenUser := c.Locals("user").(jwt.MapClaims)
+	userID := tokenUser["user_id"].(string)
+
+	user := &User{}
+	err := user.GetProfile(me.db, userID)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, fmt.Errorf("user not found")
+		}
+
+		return nil, fmt.Errorf("error getting user profile")
+	}
+
+	return user, nil
 }

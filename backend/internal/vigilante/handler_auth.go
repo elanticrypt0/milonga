@@ -326,6 +326,24 @@ func (me *AuthHandler) LoginByPasswordTokenWithLink(c *fiber.Ctx) error {
 	})
 }
 
+func (me *AuthHandler) Logout(c *fiber.Ctx) error {
+
+	tokenUser := c.Locals("user").(jwt.MapClaims)
+	userID := tokenUser["user_id"].(string)
+
+	// TODO
+
+	// register logout
+	loginAudit := NewLoginAudit()
+	loginAudit.RegisterLogout(
+		userID,
+		me.db,
+	)
+
+	return nil
+
+}
+
 // GetProfile obtiene la información del usuario autenticado
 func (me *AuthHandler) GetProfile(c *fiber.Ctx) error {
 	// Obtener los claims del token JWT
