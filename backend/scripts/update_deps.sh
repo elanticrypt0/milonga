@@ -1,3 +1,3 @@
 #!/bin/bash
 
-cd ./../app && go get -u
+cd ./backend && go get -u

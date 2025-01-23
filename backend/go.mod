@@ -47,7 +47,7 @@ require (
 	golang.org/x/text v0.21.0 // indirect
 	gorm.io/driver/mysql v1.5.7
 	gorm.io/driver/postgres v1.5.11
-	modernc.org/libc v1.61.8 // indirect
+	modernc.org/libc v1.61.9 // indirect
 	modernc.org/mathutil v1.7.1 // indirect
 	modernc.org/memory v1.8.2 // indirect
 	modernc.org/sqlite v1.34.5 // indirect
