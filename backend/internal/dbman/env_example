@@ -1,0 +1,7 @@
+DB_CONN_NAME = ""
+DB_ENGINE = ""
+DB_HOST = ""
+DB_PORT = ""
+DB_USER = ""
+DB_PASSWORD = ""
+DB_NAME = ""
