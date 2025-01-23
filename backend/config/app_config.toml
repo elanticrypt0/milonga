@@ -1,5 +1,5 @@
 APP_NAME="Milonga"
-APP_VERSION="0.0.1"
+APP_VERSION="0.1.51"
 APP_PORT="8922"
 APP_URL="http://127.0.0.1"
 APP_VIEW_PATH="./web/views"
