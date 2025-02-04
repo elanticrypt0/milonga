@@ -1,13 +1,16 @@
+// Copyright (c) 2024 Milonga
+// This software is licensed under the MIT License.
+// See LICENSE file in the project root for full license information.
+
 package main
 
 import (
 	"fmt"
 	"log"
-	"milonga/api/setup"
-	"milonga/cmd/cli"
-	"milonga/internal/app"
-	"milonga/internal/utils"
-	"os"
+	"milonga/pkg/app"
+	"milonga/pkg/utils"
+	"milonga/src"
+	"milonga/src/handlers"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
@@ -16,14 +19,13 @@ import (
 )
 
 func main() {
-	// If there are command-line arguments, run in CLI mode
-	if len(os.Args) > 1 {
-		cli.Run()
-		return
-	}
 
-	// Otherwise, run in server mode
-	app := app.New(utils.GetAppRootPath() + "/config/app_config.toml")
+	// read env config
+	// config := app.LoadConfig("./config/app_config.toml")
+
+	app := app.New("./config/app_config.toml")
+
+	// Create a new engineRender to render HTML
 
 	app.Server = fiber.New(fiber.Config{
 		Prefork:           false,
@@ -57,10 +59,10 @@ func main() {
 		TimeZone:   "America/Argentina/Buenos_Aires",
 	}))
 
-	setup.ApiSetup(app)
+	src.AppSetup(app)
+	handlers.Setup(app)
 
-	// remove this to open the web on the start
-	// utils.OpenInBrowser(app.Config.AppHost)
+	utils.OpenInBrowser(app.Config.AppHost)
 
 	app.Server.Use(recover.New())
 
