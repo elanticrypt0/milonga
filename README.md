@@ -1,15 +1,16 @@
 # Milonga
 
-A powerful and flexible Go framework for building modern web applications.
+A powerful, flexible, and zero-configuration Go framework for building modern backend and fullstack applications. Download and start coding right away!
 
 ## Features
 
-- 🚀 High-performance web server using Fiber
-- 🛠 Built-in CLI tool for code generation
-- 📦 Docker support out of the box
-- 🔄 Hot reload for development
-- 🗄️ GORM integration for database operations
-- 🔒 Built-in security features
+- 🚀 **Zero Configuration**: Download and run with a simple `go run .` - start coding immediately!
+- 🏗️ **Flexible Architecture**: MVC by default, but adaptable to any architecture pattern
+- 🔒 **Built-in Authentication**: Includes "vigilante" module with JWT and OTP support
+- 📦 **Database Integration**: GORM integration with multi-database configuration support
+- ⚡ **High Performance**: Built on top of Fiber framework for excellent documentation and performance
+- 🛠️ **Powerful CLI**: Generate configurations, migrations, seeds, and CRUD models
+- 🐳 **Docker Ready**: Includes Docker Compose and hot-reload with Air configuration
 
 ## Quick Start
 
@@ -34,7 +35,7 @@ go mod download
 
 ```bash
 # Run the application
-go run main.go
+go run .
 
 # Or with hot reload
 air
@@ -116,6 +117,16 @@ Default port is 8921 (configurable)
 - Public files: [http://localhost:8921/public](http://localhost:8921/public)
 - HTMX example: [http://localhost:8921/public/examplex.html](http://localhost:8921/public/examplex.html)
 
+## Project Vision
+
+Milonga aims to be a simple yet powerful framework that allows developers to focus on building their applications rather than dealing with configuration. The goal is to provide a complete solution that works out of the box while remaining flexible enough to accommodate various project requirements.
+
+The project is actively being developed with plans to include:
+- Comprehensive documentation
+- Web interface
+- Additional API features
+- Extended examples and use cases
+
 ## Contributing
 
 Contributions are welcome! Please feel free to submit a Pull Request.
@@ -123,3 +134,5 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 ## License
 
 This project is licensed under the MIT License - see the LICENSE file for details.
+
+¡Es argentino, papá! 🇦🇷
