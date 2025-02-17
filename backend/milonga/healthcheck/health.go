@@ -3,7 +3,7 @@ package healthcheck
 import (
 	"context"
 	"fmt"
-	"milonga/internal/app"
+	"milonga/milonga/app"
 	"net/http"
 	"sync"
 	"time"

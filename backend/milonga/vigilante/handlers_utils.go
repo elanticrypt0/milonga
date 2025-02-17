@@ -3,7 +3,7 @@ package vigilante
 import (
 	"encoding/base64"
 	"fmt"
-	"milonga/internal/app"
+	"milonga/milonga/app"
 	"strings"
 	"time"
 

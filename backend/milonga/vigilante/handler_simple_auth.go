@@ -6,7 +6,7 @@ import (
 
 	"gorm.io/gorm"
 
-	"milonga/internal/app"
+	"milonga/milonga/app"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/golang-jwt/jwt/v5"

@@ -2,9 +2,10 @@ package app
 
 import (
 	"fmt"
-	"milonga/internal/utils"
+	"log"
+	"milonga/milonga/utils"
 
-	"milonga/internal/dbman"
+	"milonga/milonga/dbman"
 
 	"github.com/gofiber/fiber/v2"
 )
@@ -41,4 +42,12 @@ func (me *App) LoadDefaultAdminConfig() *DefaultAdmin {
 	daConfigPath := utils.GetAppRootPath() + "/config/default_admin.toml"
 	LoadTomlFile(daConfigPath, admin)
 	return admin
+}
+
+func (me *App) GetCurrentEnviroment() string {
+	return me.Config.Enviroment
+}
+
+func (me *App) ConsoleMessage(message string) {
+	log.Printf("Milonga :: %s\n", message)
 }

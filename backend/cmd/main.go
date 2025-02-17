@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"milonga/api/setup"
 	"milonga/cmd/cli"
-	"milonga/internal/app"
-	"milonga/internal/utils"
+	"milonga/milonga/app"
+	"milonga/milonga/utils"
 	"os"
 )
 

@@ -2,7 +2,7 @@ package utils
 
 import (
 	"encoding/json"
-	"milonga/internal/milonga_errors"
+	"milonga/milonga/milonga_errors"
 	"os"
 	"strings"
 

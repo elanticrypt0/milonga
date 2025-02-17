@@ -2,10 +2,10 @@ package handlers
 
 import (
 	"fmt"
-	"milonga/internal/app"
-	"milonga/internal/handlers"
-	"milonga/internal/milonga_response"
-	"milonga/internal/utils"
+	"milonga/milonga/app"
+	"milonga/milonga/handlers"
+	"milonga/milonga/milonga_response"
+	"milonga/milonga/utils"
 
 	"github.com/gofiber/fiber/v2"
 	"gorm.io/gorm"

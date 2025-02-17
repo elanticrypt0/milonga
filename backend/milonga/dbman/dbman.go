@@ -7,8 +7,8 @@ import (
 	"path/filepath"
 	"strings"
 
-	"milonga/internal/dbman/console"
-	"milonga/internal/dbman/errors"
+	"milonga/milonga/dbman/console"
+	"milonga/milonga/dbman/errors"
 
 	"strconv"
 

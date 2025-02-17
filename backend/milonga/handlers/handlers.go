@@ -1,7 +1,7 @@
 package handlers
 
 import (
-	"milonga/internal/app"
+	"milonga/milonga/app"
 
 	"gorm.io/gorm"
 )

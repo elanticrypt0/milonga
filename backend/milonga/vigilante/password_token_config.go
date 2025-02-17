@@ -2,7 +2,7 @@ package vigilante
 
 import (
 	"fmt"
-	"milonga/internal/utils"
+	"milonga/milonga/utils"
 	"os"
 
 	"github.com/BurntSushi/toml"

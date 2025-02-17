@@ -54,8 +54,8 @@ func generateHandlerFile(modelName string) error {
 	handlerTemplate := `package handlers
 
 import (
-	"milonga/internal/app"
-	"milonga/internal/handlers"
+	"milonga/milonga/app"
+	"milonga/milonga/handlers"
 	
 	"milonga/api/models"
 

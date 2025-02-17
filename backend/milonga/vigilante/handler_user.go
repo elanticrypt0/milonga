@@ -4,7 +4,7 @@ import (
 	"errors"
 	"fmt"
 
-	"milonga/internal/app"
+	"milonga/milonga/app"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/golang-jwt/jwt/v5"

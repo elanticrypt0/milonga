@@ -7,10 +7,8 @@ package main
 import (
 	"fmt"
 	"log"
-	"milonga/pkg/app"
-	"milonga/pkg/utils"
-	"milonga/src"
-	"milonga/src/handlers"
+	"milonga/api/setup"
+	"milonga/milonga/app"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
@@ -59,10 +57,7 @@ func main() {
 		TimeZone:   "America/Argentina/Buenos_Aires",
 	}))
 
-	src.AppSetup(app)
-	handlers.Setup(app)
-
-	utils.OpenInBrowser(app.Config.AppHost)
+	setup.ApiSetup(app)
 
 	app.Server.Use(recover.New())
 

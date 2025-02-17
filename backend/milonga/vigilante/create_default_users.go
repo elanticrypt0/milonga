@@ -2,7 +2,7 @@ package vigilante
 
 import (
 	"log"
-	"milonga/internal/app"
+	"milonga/milonga/app"
 
 	"github.com/google/uuid"
 	"gorm.io/gorm"

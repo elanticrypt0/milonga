@@ -2,9 +2,9 @@ package dbman
 
 import (
 	"fmt"
-	"milonga/internal/dbman/console"
+	"milonga/milonga/dbman/console"
 
-	"milonga/internal/dbman/errors"
+	"milonga/milonga/dbman/errors"
 
 	"github.com/glebarez/sqlite"
 	"gorm.io/driver/mysql"

@@ -3,7 +3,7 @@ package dbman
 import (
 	"os"
 
-	"milonga/internal/dbman/errors"
+	"milonga/milonga/dbman/errors"
 
 	"github.com/BurntSushi/toml"
 )

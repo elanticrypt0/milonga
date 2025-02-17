@@ -1,7 +1,7 @@
 package healthcheck
 
 import (
-	"milonga/internal/app"
+	"milonga/milonga/app"
 
 	"github.com/gofiber/fiber/v2"
 	"gorm.io/gorm"

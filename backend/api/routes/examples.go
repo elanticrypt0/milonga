@@ -2,8 +2,8 @@ package routes
 
 import (
 	"fmt"
-	"milonga/internal/app"
-	"milonga/internal/milonga_response"
+	"milonga/milonga/app"
+	"milonga/milonga/milonga_response"
 	"time"
 
 	"github.com/gofiber/fiber/v2"

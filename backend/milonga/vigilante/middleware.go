@@ -2,7 +2,7 @@ package vigilante
 
 import (
 	"fmt"
-	"milonga/internal/app"
+	"milonga/milonga/app"
 	"strings"
 
 	"github.com/gofiber/fiber/v2"

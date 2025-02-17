@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"log"
 	"milonga/database/migrations"
-	"milonga/internal/app"
-	"milonga/internal/vigilante"
+	"milonga/milonga/app"
+	"milonga/milonga/vigilante"
 
 	"gorm.io/gorm"
 )

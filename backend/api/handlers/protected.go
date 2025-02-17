@@ -1,8 +1,8 @@
 package handlers
 
 import (
-	"milonga/internal/app"
-	"milonga/internal/handlers"
+	"milonga/milonga/app"
+	"milonga/milonga/handlers"
 
 	"github.com/gofiber/fiber/v2"
 	"gorm.io/gorm"

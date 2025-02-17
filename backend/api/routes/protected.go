@@ -2,8 +2,8 @@ package routes
 
 import (
 	"milonga/api/handlers"
-	"milonga/internal/app"
-	"milonga/internal/vigilante"
+	"milonga/milonga/app"
+	"milonga/milonga/vigilante"
 )
 
 func ProtectedRoutes(app *app.App) {

@@ -1,9 +1,9 @@
 package setup
 
 import (
-	"milonga/internal/app"
-	"milonga/internal/healthcheck"
-	"milonga/internal/vigilante"
+	"milonga/milonga/app"
+	"milonga/milonga/healthcheck"
+	"milonga/milonga/vigilante"
 
 	"github.com/gofiber/fiber/v2"
 	"gorm.io/gorm"
