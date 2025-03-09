@@ -1,6 +1,7 @@
 package app
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"milonga/milonga/utils"
@@ -14,6 +15,7 @@ type App struct {
 	Server *fiber.App
 	Config *Config
 	DB     *dbman.DBMan
+	Ctx    context.Context
 }
 
 func New(configPath string) *App {
@@ -25,6 +27,10 @@ func New(configPath string) *App {
 	app.Config.AppHost = app.Config.URL + ":" + app.Config.Port
 
 	return app
+}
+
+func (me *App) SetCtx(c context.Context) {
+	me.Ctx = c
 }
 
 func (me *App) UseDB() {

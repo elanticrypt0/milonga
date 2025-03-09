@@ -5,6 +5,7 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"milonga/api/setup"
@@ -22,6 +23,7 @@ func main() {
 	// config := app.LoadConfig("./config/app_config.toml")
 
 	app := app.New("./config/app_config.toml")
+	app.SetCtx(context.Background())
 
 	// Create a new engineRender to render HTML
 
