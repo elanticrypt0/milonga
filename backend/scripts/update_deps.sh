@@ -1,3 +1,3 @@
 #!/bin/bash
 
-cd ./backend && go get -u
+cd ../backend && go get -u
