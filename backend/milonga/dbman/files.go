@@ -39,3 +39,11 @@ func OpenFile(file string) []byte {
 		return nil
 	}
 }
+
+// RemoveFile elimina un archivo si existe
+func RemoveFile(filepath string) error {
+	if ExitsFile(filepath) {
+		return os.Remove(filepath)
+	}
+	return nil
+}

@@ -1,44 +1,29 @@
 package app
 
 import (
-	"reflect"
+	"milonga/milonga/app"
 	"testing"
 )
 
+type TestConfig struct {
+	Name    string `toml:"name"`
+	Version string `toml:"version"`
+}
+
 func TestLoadConfig(t *testing.T) {
-	type args struct {
-		configPath string
-	}
-	tests := []struct {
-		name string
-		args args
-		want *Config
-	}{
-		// TODO: Add test cases.
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			if got := utils.LoadConfig(tt.args.configPath); !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("LoadConfig() = %v, want %v", got, tt.want)
-			}
-		})
+	// Esta prueba se limita a verificar que la función no causa pánico
+	// y devuelve un objeto App no nulo
+	got := app.LoadConfig("../../config/app_config.toml")
+	if got == nil {
+		t.Errorf("LoadConfig() returned nil")
 	}
 }
 
-func TestLoadTomlFile(t *testing.T) {
-	type args struct {
-		file string
-		stru *T
-	}
-	tests := []struct {
-		name string
-		args args
-	}{
-		// TODO: Add test cases.
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			utils.LoadTomlFile(tt.args.file, tt.args.stru)
-		})
-	}
+func TestLoadConfigFileNotExists(t *testing.T) {
+	// Intentamos cargar un archivo que no existe
+	// Lo esperado es que no cause pánico
+	// La implementación actual puede devolver un objeto o nil
+	// Lo importante es que no cause pánico
+	app.LoadConfig("nonexistent_file.toml")
+	// Test exitoso si llegamos aquí sin pánico
 }

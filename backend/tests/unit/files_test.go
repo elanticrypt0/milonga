@@ -1,83 +1,97 @@
 package app
 
 import (
-	"milonga/milonga/utils"
-	"reflect"
+	"milonga/milonga/dbman"
+	"os"
+	"path/filepath"
 	"testing"
 )
 
-func TestLoadTomlFile(t *testing.T) {
-	type args struct {
-		file string
-		stru *T
-	}
-	tests := []struct {
-		name string
-		args args
-	}{
-		// TODO: Add test cases.
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			utils.LoadTomlFile(tt.args.file, tt.args.stru)
-		})
-	}
-}
-
-func TestLoadJSONFile(t *testing.T) {
-	type args struct {
-		file string
-		stru *T
-	}
-	tests := []struct {
-		name string
-		args args
-	}{
-		// TODO: Add test cases.
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			utils.LoadJSONFile(tt.args.file, tt.args.stru)
-		})
-	}
-}
-
 func TestExitsFile(t *testing.T) {
-	type args struct {
-		filepath string
+	// Prueba con un archivo que existe
+	tmpfile, err := os.CreateTemp("", "test-exists-*")
+	if err != nil {
+		t.Fatal(err)
 	}
-	tests := []struct {
-		name string
-		args args
-		want bool
-	}{
-		// TODO: Add test cases.
+	defer os.Remove(tmpfile.Name())
+	
+	if !dbman.ExitsFile(tmpfile.Name()) {
+		t.Errorf("ExitsFile() returned false for existing file")
 	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			if got := utils.ExitsFile(tt.args.filepath); got != tt.want {
-				t.Errorf("ExitsFile() = %v, want %v", got, tt.want)
-			}
-		})
+	
+	// Prueba con un archivo que no existe
+	nonExistentFile := filepath.Join(os.TempDir(), "non-existent-file-test")
+	_ = os.Remove(nonExistentFile) // Asegurarse de que no existe
+	
+	if dbman.ExitsFile(nonExistentFile) {
+		t.Errorf("ExitsFile() returned true for non-existent file")
 	}
 }
 
 func TestOpenFile(t *testing.T) {
-	type args struct {
-		file string
+	// Crear un archivo temporal con contenido conocido
+	content := []byte("test content")
+	tmpfile, err := os.CreateTemp("", "test-open-*")
+	if err != nil {
+		t.Fatal(err)
 	}
-	tests := []struct {
-		name string
-		args args
-		want []byte
-	}{
-		// TODO: Add test cases.
+	defer os.Remove(tmpfile.Name())
+	
+	if _, err := tmpfile.Write(content); err != nil {
+		tmpfile.Close()
+		t.Fatal(err)
 	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			if got := utils.OpenFile(tt.args.file); !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("OpenFile() = %v, want %v", got, tt.want)
-			}
-		})
+	if err := tmpfile.Close(); err != nil {
+		t.Fatal(err)
+	}
+	
+	// Probar que podemos leer el archivo
+	got := dbman.OpenFile(tmpfile.Name())
+	if string(got) != string(content) {
+		t.Errorf("OpenFile() = %v, want %v", string(got), string(content))
+	}
+	
+	// Probar con un archivo que no existe
+	nonExistentFile := filepath.Join(os.TempDir(), "non-existent-file-test")
+	_ = os.Remove(nonExistentFile) // Asegurarse de que no existe
+	
+	got = dbman.OpenFile(nonExistentFile)
+	if got != nil {
+		t.Errorf("OpenFile() returned non-nil for non-existent file")
+	}
+}
+
+func TestRemoveFile(t *testing.T) {
+	// Crear un archivo temporal para eliminar
+	tmpfile, err := os.CreateTemp("", "test-remove-*")
+	if err != nil {
+		t.Fatal(err)
+	}
+	tmpPath := tmpfile.Name()
+	tmpfile.Close()
+	
+	// Verificar que existe antes de eliminar
+	if !dbman.ExitsFile(tmpPath) {
+		t.Fatalf("Test file does not exist before removal: %s", tmpPath)
+	}
+	
+	// Eliminar el archivo
+	if err := dbman.RemoveFile(tmpPath); err != nil {
+		t.Errorf("RemoveFile() error = %v", err)
+	}
+	
+	// Verificar que ya no existe
+	if dbman.ExitsFile(tmpPath) {
+		t.Errorf("File still exists after RemoveFile(): %s", tmpPath)
+		// Limpiar para que no quede basura
+		_ = os.Remove(tmpPath)
+	}
+	
+	// Probar con un archivo que no existe
+	nonExistentFile := filepath.Join(os.TempDir(), "non-existent-file-test")
+	_ = os.Remove(nonExistentFile) // Asegurarse de que no existe
+	
+	if err := dbman.RemoveFile(nonExistentFile); err != nil {
+		t.Errorf("RemoveFile() returned error for non-existent file: %v", err)
 	}
 }

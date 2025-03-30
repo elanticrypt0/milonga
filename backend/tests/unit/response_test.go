@@ -99,41 +99,87 @@ func TestPrepareHTMLFromSlice(t *testing.T) {
 	}
 }
 
-func Test_parseHTMLFile(t *testing.T) {
-	type args struct {
-		filepath   string
-		data2parse map[string]interface{}
-	}
-	tests := []struct {
-		name string
-		args args
-		want []byte
-	}{
-		// TODO: Add test cases.
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			if got := milonga_response.parseHTMLFile(tt.args.filepath, tt.args.data2parse); !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("parseHTMLFile() = %v, want %v", got, tt.want)
-			}
-		})
-	}
-}
+// No podemos probar parseHTMLFile directamente porque es una función privada
+// Esta función puede probarse indirectamente a través de SendHTMLFromFileWithData
+// pero requeriría mocks de fiber.Ctx
 
 func TestStruct2Map(t *testing.T) {
+	// Define una estructura de prueba
+	type TestStruct struct {
+		Name     string `json:"name"`
+		Age      int    `json:"age"`
+		Email    string `json:"email,omitempty"`
+		Internal string // Sin etiqueta json
+	}
+
 	type args struct {
 		estructura interface{}
 	}
+	
 	tests := []struct {
 		name string
 		args args
 		want map[string]interface{}
 	}{
-		// TODO: Add test cases.
+		{
+			name: "basic struct conversion",
+			args: args{
+				estructura: TestStruct{
+					Name:     "John Doe",
+					Age:      30,
+					Email:    "john@example.com",
+					Internal: "Internal value",
+				},
+			},
+			want: map[string]interface{}{
+				"name":     "John Doe",
+				"age":      30,
+				"email":    "john@example.com",
+				"Internal": "Internal value",
+			},
+		},
+		{
+			name: "pointer to struct",
+			args: args{
+				estructura: &TestStruct{
+					Name:     "Jane Doe",
+					Age:      25,
+					Email:    "jane@example.com",
+					Internal: "Internal value",
+				},
+			},
+			want: map[string]interface{}{
+				"name":     "Jane Doe",
+				"age":      25,
+				"email":    "jane@example.com",
+				"Internal": "Internal value",
+			},
+		},
+		{
+			name: "non-struct value",
+			args: args{
+				estructura: "not a struct",
+			},
+			want: map[string]interface{}{},
+		},
+		{
+			name: "empty struct",
+			args: args{
+				estructura: TestStruct{},
+			},
+			want: map[string]interface{}{
+				"name":     "",
+				"age":      0,
+				"email":    "",
+				"Internal": "",
+			},
+		},
 	}
+	
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := milonga_response.Struct2Map(tt.args.estructura); !reflect.DeepEqual(got, tt.want) {
+			got := milonga_response.Struct2Map(tt.args.estructura)
+			if !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("Struct2Map() = %v, want %v", got, tt.want)
 			}
 		})
@@ -141,17 +187,56 @@ func TestStruct2Map(t *testing.T) {
 }
 
 func TestStructSlice2Map(t *testing.T) {
+	// Define una estructura de prueba
+	type TestStruct struct {
+		Name  string `json:"name"`
+		Value int    `json:"value"`
+	}
+
 	type args struct {
 		data interface{}
 	}
+	
 	tests := []struct {
 		name    string
 		args    args
 		want    []interface{}
 		wantErr bool
 	}{
-		// TODO: Add test cases.
+		{
+			name: "slice of structs",
+			args: args{
+				data: []TestStruct{
+					{Name: "Item 1", Value: 10},
+					{Name: "Item 2", Value: 20},
+					{Name: "Item 3", Value: 30},
+				},
+			},
+			want: []interface{}{
+				map[string]interface{}{"name": "Item 1", "value": 10},
+				map[string]interface{}{"name": "Item 2", "value": 20},
+				map[string]interface{}{"name": "Item 3", "value": 30},
+			},
+			wantErr: false,
+		},
+		{
+			name: "empty slice",
+			args: args{
+				data: []TestStruct{},
+			},
+			want:    []interface{}{},
+			wantErr: false,
+		},
+		{
+			name: "non-slice value",
+			args: args{
+				data: "not a slice",
+			},
+			want:    nil,
+			wantErr: true,
+		},
 	}
+	
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			got, err := milonga_response.StructSlice2Map(tt.args.data)

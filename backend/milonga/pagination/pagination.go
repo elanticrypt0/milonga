@@ -18,6 +18,8 @@ func NewPagination(currentPage, itemsPerPage, totalItems uint) *Pagination {
 		ItemsPerPage: itemsPerPage,
 		PageCurrent:  currentPage,
 		TotalItems:   totalItems,
+		PageNext:     currentPage,
+		PagePrev:     currentPage,
 	}
 	p.calculatePages(totalItems)
 	if currentPage+1 <= p.PageLast {
@@ -34,7 +36,7 @@ func (p *Pagination) calculatePages(totalItems uint) {
 	if totalItems >= p.ItemsPerPage {
 		pages := totalItems / p.ItemsPerPage
 		pagesMod := totalItems % p.ItemsPerPage
-		if pagesMod > p.ItemsPerPage {
+		if pagesMod > 0 {
 			pages++
 		}
 		p.PageLast = pages
@@ -56,7 +58,7 @@ func (p *Pagination) ToString(elem string) string {
 	case "prev":
 		val = strconv.Itoa(int((p.PagePrev)))
 	case "current":
-		val = strconv.Itoa(int((p.PagePrev)))
+		val = strconv.Itoa(int((p.PageCurrent)))
 	}
 	return val
 }
