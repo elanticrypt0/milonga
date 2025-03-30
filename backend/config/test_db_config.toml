@@ -1,0 +1,11 @@
+# Test Database Configuration
+[[connections]]
+connName = "test"
+engine = "sqlite"
+dbname = ":memory:"
+
+# File-based SQLite for when you need persistence across test runs
+[[connections]]
+connName = "test_file"
+engine = "sqlite"
+dbname = "test_milonga.db"
