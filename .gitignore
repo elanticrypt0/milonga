@@ -3,3 +3,5 @@ build/*
 *.db
 todo.md
 bruno/
+.idea
+.vscode

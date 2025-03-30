@@ -3,3 +3,4 @@ build/*
 database/*.db
 todo.md
 tmp/*
+CLAUDE.md
