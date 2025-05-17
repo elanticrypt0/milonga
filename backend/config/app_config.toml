@@ -9,8 +9,9 @@ APP_OPENINBROWSER=false
 
 DB_CONFIG_PATH="/config/db_config.toml"
 
+# replace this to improve security
 JWT_SECRET="jwt-deepest-secret"
 
 # Password token encryption key
 # 32 bytes para AES-256
-PASSTOKEN_ENCRYPTIONKEY = "GENERATE-TOKEN-WITH-CLI"
+PASSTOKEN_ENCRYPTIONKEY = "01l10kkt9w0YnT8Hm/ts+aOYj6DpgNa1MLF6Xd0iN6w="
