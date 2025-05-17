@@ -4,3 +4,4 @@ database/*.db
 todo.md
 tmp/*
 CLAUDE.md
+logs/*.log
