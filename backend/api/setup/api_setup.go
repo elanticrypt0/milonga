@@ -19,9 +19,9 @@ func ApiSetup(app *app.App) {
 
 // also used in CMD
 func DatabaseSetup(app *app.App) {
-	// app.UseDB()
-	// app.DB.Connect("local")
-	// app.DB.SetPrimary("local")
+	app.UseDB()
+	app.DB.Connect("local")
+	app.DB.SetPrimary("local")
 
 	// app.DB.Connect("mysql_dev")
 	// app.DB.SetPrimary("mysql_dev")

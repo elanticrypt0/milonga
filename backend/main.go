@@ -10,6 +10,7 @@ import (
 	"log"
 	"milonga/api/setup"
 	"milonga/milonga/app"
+	"os"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
@@ -40,22 +41,19 @@ func main() {
 
 	app.Server.Use(cors.New(cors.Config{
 		AllowOrigins: allowedCORS,
-		// AllowHeaders: "Origin, Content-Type, Accept",
 	}))
 
-	/* REMOVE COMMENTS BELOW TO USE A LOG FILE */
-	// set log file's path
-
-	// logFile, err := os.OpenFile(app.Config.LogPath, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
-	// if err != nil {
-	// 	log.Fatalf("error opening file: %v", err)
-	// }
-	// defer logFile.Close()
+	// uses a log file for errors
+	logFile, err := os.OpenFile(app.Config.LogPath, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
+	if err != nil {
+		log.Fatalf("error opening file: %v", err)
+	}
+	defer logFile.Close()
 
 	app.Server.Use(logger.New(logger.Config{
 		// Output:     logFile,
 		Format:     "PID: ${pid} [${ip}]:${port} ${status} - ${method} ${path}\n",
-		TimeFormat: "02-Jan-2006",
+		TimeFormat: "02-06-2006",
 		TimeZone:   "America/Argentina/Buenos_Aires",
 	}))
 

@@ -4,7 +4,7 @@ APP_ENVIROMENT="dev"
 APP_PORT="8921"
 APP_URL="http://127.0.0.1"
 APP_VIEW_PATH="./web/views"
-APP_LOG_PATH="milonga.log"
+APP_LOG_PATH="logs/error.log"
 APP_OPENINBROWSER=false
 
 DB_CONFIG_PATH="/config/db_config.toml"
