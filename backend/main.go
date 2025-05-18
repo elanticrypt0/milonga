@@ -7,6 +7,7 @@ package main
 import (
 	"context"
 	"fmt"
+	"github.com/gofiber/template/html/v2"
 	"log"
 	"milonga/api/setup"
 	"milonga/milonga/app"
@@ -25,6 +26,8 @@ func main() {
 	app := app.New("./config/app_config.toml")
 	app.SetCtx(context.Background())
 
+	templateEngine := html.New(app.Config.TemplatesPath, ".html")
+
 	// Create a new engineRender to render HTML
 
 	app.Server = fiber.New(fiber.Config{
@@ -34,9 +37,11 @@ func main() {
 		EnablePrintRoutes: false,
 		ServerHeader:      app.Config.Name,
 		AppName:           app.Config.Name + " v" + app.Config.Version,
+		Views:             templateEngine,
 	})
 
-	allowedCORS := fmt.Sprintf("%s, %s:4321", app.Config.AppHost, app.Config.URL)
+	allowedCORS := fmt.Sprintf("%s, %s:4321, %s", app.Config.AppHost, app.Config.URL, app.Config.AllowedCORS)
+	fmt.Printf("ALLOWED CORS: %s\n", allowedCORS)
 
 	app.Server.Use(cors.New(cors.Config{
 		AllowOrigins: allowedCORS,
