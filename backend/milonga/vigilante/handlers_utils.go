@@ -37,16 +37,23 @@ func GenerateLoginPasswordTokenLink(app *app.App, email, passwordtoken string) s
 	refFormat := fmt.Sprintf("%s:%s", email, passwordtoken)
 	ref := base64.StdEncoding.EncodeToString([]byte(refFormat))
 
-	return fmt.Sprintf("%s/api/v1/auth/login/guest/link?ref=%s", app.Config.AppHost, ref)
+	return fmt.Sprintf("%s/%s/auth/login/guest/link?ref=%s", app.Config.AppHost, app.Config.APIPath, ref)
 }
 
-func CreateSessionCookie(token string) *fiber.Cookie {
+func CreateSessionCookie(sessionName, token string) *fiber.Cookie {
+
 	return &fiber.Cookie{
-		Name:     "userSession",
+		Name:     parseSessionName(sessionName),
 		Value:    token,
-		Expires:  time.Now().Add(2 * time.Hour),
+		Expires:  time.Now().Add(1 * time.Hour),
 		Secure:   true,
 		HTTPOnly: true,
 		SameSite: "Lax",
 	}
+}
+
+func parseSessionName(sessionName string) string {
+	sessionName = strings.ToLower(sessionName)
+	sessionName = strings.Replace(sessionName, "@", "AT", -1)
+	return sessionName
 }
