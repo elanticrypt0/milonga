@@ -1,6 +1,7 @@
 package vigilante
 
 import (
+	"fmt"
 	"github.com/google/uuid"
 	"gorm.io/gorm"
 )
@@ -29,4 +30,34 @@ func (u *UserAuth) GetProfile(db *gorm.DB, userID string) error {
 	}
 
 	return nil
+}
+
+func (u *UserAuth) GetByEmail(tx *gorm.DB, email string) (*UserAuth, error) {
+	userdata := &UserAuth{}
+	err := tx.Model(&UserAuth{}).Where("email = ?", email).First(userdata).Error
+	if err != nil {
+		return nil, fmt.Errorf("error on finding user with email %s", email)
+	}
+
+	return userdata, nil
+}
+
+func (u *UserAuth) GetEnabledByEmail(tx *gorm.DB, email string) (*UserAuth, error) {
+	userdata := &UserAuth{}
+	err := tx.Model(&UserAuth{}).Where("email = ? AND status = ?", email, UserStatusEnabled).First(userdata).Error
+	if err != nil {
+		return nil, fmt.Errorf("error on finding user with email %s", email)
+	}
+
+	return userdata, nil
+}
+
+func (u *UserAuth) GetByID(tx *gorm.DB, id uuid.UUID) (*UserAuth, error) {
+	userdata := &UserAuth{}
+	err := tx.Model(&UserAuth{}).Where("id = ?", id).First(userdata).Error
+	if err != nil {
+		return nil, fmt.Errorf("error on finding user with ID %s", id)
+	}
+
+	return userdata, nil
 }
