@@ -37,7 +37,7 @@ func GenerateLoginPasswordTokenLink(app *app.App, email, passwordtoken string) s
 	refFormat := fmt.Sprintf("%s:%s", email, passwordtoken)
 	ref := base64.StdEncoding.EncodeToString([]byte(refFormat))
 
-	return fmt.Sprintf("%s/%s/auth/login/guest/link?ref=%s", app.Config.AppHost, app.Config.APIPath, ref)
+	return fmt.Sprintf("%s/%s/auth/login/otp/link?ref=%s", app.Config.AppHost, app.Config.APIPath, ref)
 }
 
 func CreateSessionCookie(sessionName, token string) *fiber.Cookie {
