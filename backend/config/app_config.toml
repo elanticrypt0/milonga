@@ -3,9 +3,13 @@ APP_VERSION="0.1.51"
 APP_ENVIROMENT="dev"
 APP_PORT="8921"
 APP_URL="http://127.0.0.1"
+APP_API_PATH="api/v1"
+# separed by colon (,)
+APP_ALLOWED_CORS="http://localhost:4321"
 APP_VIEW_PATH="./web/views"
 APP_LOG_PATH="milonga.log"
 APP_OPENINBROWSER=false
+APP_TEMPLATES_PATH="../admin-panel/public/templates"
 
 DB_CONFIG_PATH="/config/db_config.toml"
 
@@ -13,4 +17,4 @@ JWT_SECRET="jwt-deepest-secret"
 
 # Password token encryption key
 # 32 bytes para AES-256
-PASSTOKEN_ENCRYPTIONKEY = "GENERATE-TOKEN-WITH-CLI"
+PASSTOKEN_ENCRYPTIONKEY = "I7U84bMKWLoLq9LyYJSb05aNivDSXsHGMdQ1Ln4xTEk="
