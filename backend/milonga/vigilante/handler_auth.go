@@ -172,10 +172,9 @@ func (me *AuthHandler) LoginByPasswordToken(c *fiber.Ctx) error {
 		})
 	}
 
-	var user UserAuth
-	result := me.db.Where("email = ? AND status = ?", input.Email, UserStatusEnabled).First(&user)
-	if result.Error != nil {
-
+	user := &UserAuth{}
+	user, err := user.GetEnabledByEmail(me.db, input.Email)
+	if err != nil {
 		// Registrar intento fallido
 		loginAudit := NewLoginAudit()
 		loginAudit.RegisterFailedLogin(
@@ -195,7 +194,7 @@ func (me *AuthHandler) LoginByPasswordToken(c *fiber.Ctx) error {
 
 	passToken := NewPasswordToken()
 
-	err := passToken.CheckToken(user.ID, input.PasswordToken, me.db)
+	err = passToken.CheckToken(user.ID, input.PasswordToken, me.db)
 	if err != nil {
 
 		// Registrar intento fallido
