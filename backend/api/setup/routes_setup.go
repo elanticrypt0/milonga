@@ -1,26 +1,23 @@
 package setup
 
 import (
+	"milonga/api/routes"
 	"milonga/milonga/app"
 )
 
 func RoutesSetup(app *app.App) {
 
-	// router := app.Server.Group("api/v1")
+	// default api path is api/v1
+	router := app.Server.Group(app.Config.APIPath)
 	// adminRouter := app.Server.Group("admin")
 
 	// SetupMilongaRoutes(app, router)
 
 	// routes.ProtectedRoutes(app)
 	// routes.ExamplesRoutes(app)
+	routes.TaskRoutes(app, router)
 
-	// ENABLE TO use Authroutes on browser
-	// routes.AuthRoutes(app, adminRouter)
-
-	// ENABLE TO use AdminRoutes on Browser
-	// routes.AdminRoutes(app, adminRouter)
-
-	// SetupMilongaRoutes(app, router)
+	SetupMilongaRoutes(app, router)
 
 	staticRoutes(app)
 
