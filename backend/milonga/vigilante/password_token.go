@@ -20,6 +20,8 @@ type PasswordToken struct {
 	UserAuthID uuid.UUID `gorm:"type:varchar(50);not null"`
 	Token      string    `gorm:"unique;not null"`
 	IsUsed     bool      `gorm:"default:false"`
+	TotalUses  int       `gorm:"default:0"`
+	MaxUses    int       `gorm:"default:1"`
 	ExpiresAt  time.Time `gorm:"not null"`
 	User       UserAuth  `gorm:"foreignKey:UserAuthID"`
 	gorm.Model
@@ -41,8 +43,45 @@ func (me *PasswordToken) BeforeCreate(tx *gorm.DB) error {
 	return nil
 }
 
+func (me *PasswordToken) updateOTPUses() {
+	me.TotalUses++
+	me.IsUsed = me.checkIsUsed()
+}
+
 func (me *PasswordToken) Create(userID uuid.UUID, tx *gorm.DB) (string, error) {
 	return me.CreateWithValidity(userID, DefaultTokenValidity, tx)
+}
+
+func (me *PasswordToken) DenyOTPOfUser(tx *gorm.DB, userID uuid.UUID) error {
+	// si el usuario tiene otros token creados pero no usados
+	err := tx.Model(&PasswordToken{}).Where("user_auth_id = ?", userID).Update("is_used", 1).Error
+	if err != nil {
+		return fmt.Errorf("error denying other OTP of user: %v", err)
+	}
+	return nil
+}
+
+// update max uses
+
+func (me *PasswordToken) UpdateMaxUses(tx *gorm.DB, userID uuid.UUID, maxUses int) error {
+
+	passmodel := &PasswordToken{}
+	passmodel.UserAuthID = userID
+	err := tx.Model(&PasswordToken{}).Where("user_auth_id = ?", userID).Last(&passmodel).Error
+	if err != nil {
+		return fmt.Errorf("error retriving user by id: %v", err)
+	}
+	// cambia el máximo de usos
+	passmodel.MaxUses = maxUses
+	// actualiza si habilita el logueo
+	passmodel.IsUsed = passmodel.checkIsUsed()
+	err = tx.Save(&passmodel).Error
+
+	if err != nil {
+		return fmt.Errorf("error updating max uses: %s", err)
+	}
+
+	return nil
 }
 
 func (me *PasswordToken) CreateWithValidity(userID uuid.UUID, validity time.Duration, tx *gorm.DB) (string, error) {
@@ -115,7 +154,7 @@ func (me *PasswordToken) RefreshTokenWithValidity(userID uuid.UUID, token string
 	}
 
 	// Marcar el token actual como usado
-	instance.IsUsed = true
+	instance.updateOTPUses()
 	if err := tx.Save(&instance).Error; err != nil {
 		return "", fmt.Errorf("error marking token as used: %w", err)
 	}
@@ -173,12 +212,17 @@ func (me *PasswordToken) CheckToken(userID uuid.UUID, token string, tx *gorm.DB)
 		return fmt.Errorf("token has expired")
 	}
 
-	instance.IsUsed = true
+	// actualiza si el token está usado
+	instance.updateOTPUses()
 	if err := tx.Save(&instance).Error; err != nil {
 		return fmt.Errorf("error marking token as used: %w", err)
 	}
 
 	return nil
+}
+
+func (me *PasswordToken) checkIsUsed() bool {
+	return me.TotalUses >= me.MaxUses
 }
 
 func (me *PasswordToken) generateToken() string {
