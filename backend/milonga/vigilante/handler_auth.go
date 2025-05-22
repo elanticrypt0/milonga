@@ -163,6 +163,25 @@ func (me *AuthHandler) Login(c *fiber.Ctx) error {
 	})
 }
 
+type otpSend struct {
+	Email string `json:"email" form:"email" binding:"required"`
+}
+
+func (me *AuthHandler) SendCode(c *fiber.Ctx) error {
+	data := &otpSend{}
+
+	if err := c.BodyParser(data); err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{})
+	}
+
+	message := fmt.Sprintf("Vigilante -> Sending access code to %s", data.Email)
+	// TODO: add log to store password request
+	fmt.Println(message)
+	return c.Status(fiber.StatusAccepted).JSON(fiber.Map{
+		"message": message,
+	})
+}
+
 func (me *AuthHandler) LoginByPasswordToken(c *fiber.Ctx) error {
 	input := new(LoginByTokenInput)
 
