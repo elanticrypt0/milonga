@@ -7,24 +7,19 @@ import (
 
 func RoutesSetup(app *app.App) {
 
-	router := app.Server.Group("api/v1")
-	adminRouter := app.Server.Group("admin")
+	// default api path is api/v1
+	router := app.Server.Group(app.Config.APIPath)
+	// adminRouter := app.Server.Group("admin")
+
+	// SetupMilongaRoutes(app, router)
+
+	// routes.ProtectedRoutes(app)
+	// routes.ExamplesRoutes(app)
+	routes.TaskRoutes(app, router)
 
 	SetupMilongaRoutes(app, router)
 
-	//routes.ProtectedRoutes(app)
-	//routes.ExamplesRoutes(app)
-
-	//ENABLE TO use Authroutes on browser
-	routes.AuthRoutes(app, adminRouter)
-
-	//ENABLE TO use AdminRoutes on Browser
-	routes.AdminRoutes(app, adminRouter)
-
-	//SetupMilongaRoutes(app, router)
-	HealthRoutes(app)
-
-	//staticRoutes(app)
+	staticRoutes(app)
 
 }
 

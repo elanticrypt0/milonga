@@ -6,7 +6,10 @@ type Config struct {
 	Enviroment             string `toml:"APP_ENVIROMENT" json:"APP_ENVIROMENT"`
 	Port                   string `toml:"APP_PORT" json:"APP_PORT"`
 	URL                    string `toml:"APP_URL" json:"APP_URL"`
-	AppHost                string
+	AppHost                string `toml:"APP_HOST" json:"APP_HOST"`
+	APIPath                string `toml:"APP_API_PATH" json:"APP_API_PATH"`
+	TemplatesPath          string `toml:"APP_TEMPLATES_PATH" json:"APP_TEMPLATES_PATH"`
+	AllowedCORS            string `toml:"APP_ALLOWED_CORS" json:"APP_ALLOWED_CORS"`
 	ViewsPath              string `toml:"APP_VIEW_PATH" json:"APP_VIEW_PATH"`
 	LogPath                string `toml:"APP_LOG_PATH" json:"APP_LOG_PATH"`
 	OpenInBrowser          bool   `toml:"APP_OPENINBROWSER" json:"APP_OPENINBROWSER"`

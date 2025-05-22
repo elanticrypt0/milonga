@@ -3,13 +3,11 @@ package vigilante
 import (
 	"errors"
 	"fmt"
-
-	"milonga/milonga/app"
-
 	"github.com/gofiber/fiber/v2"
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/google/uuid"
 	"gorm.io/gorm"
+	"milonga/milonga/app"
 )
 
 type UserHandler struct {
@@ -362,7 +360,8 @@ type CreateVIPGuestInput struct {
 }
 
 type NewGuestInput struct {
-	Email string
+	Email   string
+	MaxUses int
 }
 
 func (me *UserHandler) CreateAccess2TokenLogin(c *fiber.Ctx) error {
@@ -382,6 +381,12 @@ func (me *UserHandler) CreateAccess2TokenLogin(c *fiber.Ctx) error {
 		})
 	}
 
+	if input.MaxUses == 0 {
+		input.MaxUses = 1
+	}
+
+	fmt.Printf("max uses: %v\n", input.MaxUses)
+
 	// Hash de la contraseña
 	hashedPassword, err := HashPassword(uuid.New().String())
 	if err != nil {
@@ -390,23 +395,30 @@ func (me *UserHandler) CreateAccess2TokenLogin(c *fiber.Ctx) error {
 
 	tx := me.db.Begin()
 
-	newUser := UserAuth{
+	newUser := &UserAuth{
 		Email:    input.Email,
 		Username: "token::" + GenerateUsername(12, 24),
 		Password: hashedPassword,
 	}
 
-	result := me.db.Model(&UserAuth{}).Where("email = ?", input.Email).FirstOrCreate(&newUser)
-	if result.Error != nil {
+	newUser, err = newUser.GetByEmail(me.db, input.Email)
+	if err != nil {
 		tx.Rollback()
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-			"message": fmt.Sprintf("%s", result.Error),
+			"message": fmt.Sprintf("%s", err),
+		})
+	}
+	// genera el token de acceso
+	passtoken := NewPasswordToken()
+
+	err = passtoken.DenyOTPOfUser(me.db, newUser.ID)
+	if err != nil {
+		tx.Rollback()
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"message": fmt.Sprintf("%s", err),
 		})
 	}
 
-	// genera el token de acceso
-
-	passtoken := NewPasswordToken()
 	token, err := passtoken.Create(newUser.ID, me.db)
 	if err != nil {
 		tx.Rollback()
@@ -418,8 +430,58 @@ func (me *UserHandler) CreateAccess2TokenLogin(c *fiber.Ctx) error {
 	tx.Commit()
 
 	return c.JSON(fiber.Map{
-		"email": newUser.Email,
-		"token": token,
-		"Link":  GenerateLoginPasswordTokenLink(me.app, newUser.Email, token),
+		"email":   newUser.Email,
+		"token":   token,
+		"Link":    GenerateLoginPasswordTokenLink(me.app, newUser.Email, token),
+		"maxUses": input.MaxUses,
+	})
+}
+
+func (me *UserHandler) UpdateOTPMaxUses(c *fiber.Ctx) error {
+
+	input := NewGuestInput{}
+
+	err := c.BodyParser(&input)
+	if err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"message": "No email passed",
+		})
+	}
+
+	if input.Email == "" {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"message": "No email passed",
+		})
+	}
+
+	tx := me.db.Begin()
+
+	newUser := &UserAuth{
+		Email: input.Email,
+	}
+
+	newUser, err = newUser.GetByEmail(me.db, input.Email)
+	if err != nil {
+		tx.Rollback()
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"message": fmt.Sprintf("%s", err),
+		})
+	}
+
+	passmodel := &PasswordToken{}
+	err = passmodel.UpdateMaxUses(me.db, newUser.ID, input.MaxUses)
+	if err != nil {
+		tx.Rollback()
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"message": fmt.Sprintf("%s", err),
+		})
+	}
+
+	tx.Commit()
+
+	return c.JSON(fiber.Map{
+		"email":   newUser.Email,
+		"maxUses": input.MaxUses,
+		"message": "User updated successfully",
 	})
 }

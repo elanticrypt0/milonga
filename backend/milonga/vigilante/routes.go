@@ -33,9 +33,12 @@ func usersRoutes(app *app.App, router fiber.Router) {
 	users.Put("/:id", handler.UpdateUser)
 	users.Delete("/:id", middleware.RequireRole("admin"), handler.DeleteUser)
 
-	// add VIPGUEST
-	// User with password token
-	users.Post("/new/guest", middleware.RequireRole("admin"), handler.CreateAccess2TokenLogin)
+	// update otp maxuses
+	users.Put("/otp/", middleware.RequireRole("admin"), handler.UpdateOTPMaxUses)
+	// this uses can use just one time password
+	users.Post("/otp/new/guest", middleware.RequireRole("admin"), handler.CreateAccess2TokenLogin)
+
+	users.Post("/otp/new/vip", middleware.RequireRole("admin"), handler.CreateAccess2TokenLogin)
 
 }
 
@@ -45,8 +48,8 @@ func authRoutes(app *app.App, router fiber.Router) {
 	handler := NewAuthHandler(app, app.DB.Primary)
 
 	auth.Post("/register", handler.Register)
-	auth.Get("/login/guest/link", handler.LoginByPasswordTokenWithLink)
-	auth.Post("/login/guest", handler.LoginByPasswordToken)
+	auth.Get("/login/otp/link", handler.LoginByPasswordTokenWithLink)
+	auth.Post("/login/otp", handler.LoginByPasswordToken)
 	auth.Post("/login", handler.Login)
 
 }

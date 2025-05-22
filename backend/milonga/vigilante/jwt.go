@@ -8,7 +8,9 @@ import (
 	"github.com/google/uuid"
 )
 
-const TOKEN_LIFETIME = 24
+// IMPORTANT: default duration
+// half hour
+const TOKEN_LIFETIME = 30
 
 func CreateNewJWToken(userID uuid.UUID, email, role, jwt_secret string) (string, error) {
 
@@ -17,7 +19,7 @@ func CreateNewJWToken(userID uuid.UUID, email, role, jwt_secret string) (string,
 	claims["user_id"] = userID
 	claims["email"] = email
 	claims["role"] = role
-	claims["exp"] = time.Now().Add(time.Hour * TOKEN_LIFETIME).Unix()
+	claims["exp"] = time.Now().Add(time.Minute * TOKEN_LIFETIME).Unix()
 
 	t, err := token.SignedString([]byte(jwt_secret))
 	if err != nil {

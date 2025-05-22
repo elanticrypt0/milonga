@@ -85,14 +85,14 @@ func (me *SimpleAuthHandler) Login(c *fiber.Ctx) error {
 	loginAudit := NewLoginAudit()
 	loginAudit.RegisterSuccessfulLogin(
 		user.ID,
-		input.Email,
+		user.Email,
 		c.IP(),
 		c.Get("User-Agent"),
 		LoginMethodSimple,
 		me.db,
 	)
 
-	c.Cookie(CreateSessionCookie(t))
+	c.Cookie(CreateSessionCookie(user.Email, t))
 
 	return nil
 }
