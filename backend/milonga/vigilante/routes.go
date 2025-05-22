@@ -48,6 +48,7 @@ func authRoutes(app *app.App, router fiber.Router) {
 	handler := NewAuthHandler(app, app.DB.Primary)
 
 	auth.Post("/register", handler.Register)
+	auth.Post("/login/otp/send", handler.SendCode)
 	auth.Get("/login/otp/link", handler.LoginByPasswordTokenWithLink)
 	auth.Post("/login/otp", handler.LoginByPasswordToken)
 	auth.Post("/login", handler.Login)
